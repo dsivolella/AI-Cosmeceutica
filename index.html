@@ -442,6 +442,8 @@
     .disclaimer-banner .disc-icon { font-size: 15px; flex-shrink: 0; }
 
     /* ════════════════════ WIZARD ANALISI ════════════════════ */
+    /* la sezione "Nuova Analisi" va centrata e allargata */
+    #page-nuova-analisi { max-width: 980px; margin: 0 auto; }
     .wizard-steps { display: flex; margin-bottom: 28px; }
     .wizard-step { flex: 1; text-align: center; position: relative; padding: 12px 8px; }
     .wizard-step::after { content: ''; position: absolute; top: 22px; left: 50%; right: -50%; height: 2px; background: rgba(0,0,0,0.08); z-index: 0; }
@@ -456,7 +458,7 @@
       border-radius: var(--radius);
       border: 1px solid rgba(0,0,0,0.07);
       border-left: 3px solid var(--green);
-      box-shadow: var(--shadow); padding: 26px; max-width: 680px;
+      box-shadow: var(--shadow); padding: 28px 32px; width: 100%;
     }
     .wizard-card h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; margin-bottom: 6px; color: var(--text-dark); }
     .wizard-card p.desc { font-size: 13px; color: var(--text-mid); margin-bottom: 22px; line-height: 1.6; }
@@ -699,19 +701,13 @@
       </div>
       <nav class="sidebar-nav">
         <div class="nav-section-label">Principale</div>
-        <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)">
-          <span class="nav-icon">🏠</span> Dashboard
-        </button>
         <button class="nav-item" data-page="nuova-analisi" onclick="showPage('nuova-analisi',this)">
           <span class="nav-icon">➕</span> Nuova Analisi
         </button>
         <div class="nav-section-label">Laboratorio</div>
-        <button class="nav-item" id="nav-profili" data-page="profili" onclick="showPage('profili',this)">
-          <span class="nav-icon">🧬</span> <span id="nav-profili-label">Profili Pelle</span>
-        </button>
-        <button class="nav-item" id="nav-formulazioni" data-page="formulazioni" onclick="showPage('formulazioni',this)">
-          <span class="nav-icon">🧪</span> <span id="nav-formulazioni-label">Formulazioni</span>
-          <span class="nav-badge">3</span>
+        <button class="nav-item" id="nav-analisi" data-page="analisi" onclick="showPage('analisi',this)">
+          <span class="nav-icon">🧬</span> Analisi
+          <span class="nav-badge" id="nav-analisi-badge">6</span>
         </button>
         <button class="nav-item" data-page="ingredienti" onclick="showPage('ingredienti',this)">
           <span class="nav-icon">🌿</span> Catalogo Ingredienti
@@ -758,8 +754,8 @@
 
       <div class="page-content">
 
-        <!-- ══ DASHBOARD ══ -->
-        <div id="page-dashboard" class="page-section active">
+        <!-- ══ DASHBOARD rimosso ══ -->
+        <div id="page-dashboard" class="page-section" style="display:none!important">
           <div class="page-intro">
             <h3 id="dash-welcome">Benvenuto nel laboratorio</h3>
             <p id="dash-sub">Panoramica dell'attività di oggi e stato del sistema.</p>
@@ -856,17 +852,17 @@
 
           <!-- STEP 1 — Sorgente dati -->
           <div class="wizard-card wizard-step-content active" id="wizard-content-1">
-            <h4>Seleziona la sorgente dati</h4>
-            <p class="desc">I dati dermatologici vengono acquisiti tramite API o database configurati dall'amministratore. Seleziona la fonte per questa analisi.</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
-              <div class="data-source-card selected" onclick="toggleSource(this)"><div class="source-icon">📡</div><div class="source-info"><h5>API Sensori attiva</h5><p>Connessione diretta ai sensori. Dati in tempo reale.</p></div></div>
-              <div class="data-source-card" onclick="toggleSource(this)"><div class="source-icon">🗄️</div><div class="source-info"><h5>Database esistente</h5><p>Richiama un profilo già salvato nel sistema.</p></div></div>
+            <h4>Avvia nuova analisi</h4>
+            <p class="desc">I dati dermatologici vengono acquisiti tramite l'API dei sensori configurata dall'amministratore. I parametri visivi e clinici che non sono rilevati dai sensori vanno inseriti manualmente in questa schermata.</p>
+            <div style="margin-bottom:18px;">
+              <div class="data-source-card selected" style="cursor:default;"><div class="source-icon">📡</div><div class="source-info"><h5>API Sensori attiva</h5><p>Connessione diretta ai sensori dermatologici. Dati in tempo reale.</p></div></div>
             </div>
             <div class="form-row">
               <div class="form-group-inner"><label>Codice sessione (opzionale)</label><input type="text" id="session-code" placeholder="es. LAB-2026-05-26" /></div>
               <div class="form-group-inner"><label>Contesto</label><select id="session-context"><option>Laboratorio didattico</option><option>Ricerca</option><option>Demo</option></select></div>
             </div>
             <h5 style="margin:18px 0 10px;font-size:13px;font-weight:700;color:var(--text-dark);letter-spacing:.03em;">DATI ANAGRAFICI E CLINICI</h5>
+            <p class="desc" style="margin:-6px 0 14px;font-size:12px;">Parametri non rilevati dai sensori — da inserire manualmente.</p>
             <div class="form-row">
               <div class="form-group-inner"><label>Età (anni)</label><input type="number" id="clin-eta" placeholder="es. 35" min="10" max="99" onchange="saveClinical()" /></div>
               <div class="form-group-inner"><label>Sesso</label><select id="clin-sesso" onchange="saveClinical()"><option value="">—</option><option value="M">M</option><option value="F">F</option></select></div>
@@ -876,6 +872,16 @@
               <div class="form-group-inner"><label>Acne grading (0–3)</label><select id="clin-acne" onchange="saveClinical()"><option value="0">0 — Assente</option><option value="1">1 — Lieve</option><option value="2">2 — Moderato</option><option value="3">3 — Severo</option></select></div>
               <div class="form-group-inner"><label>Fotoaging grading (0–3)</label><select id="clin-fotoaging" onchange="saveClinical()"><option value="0">0 — Assente</option><option value="1">1 — Lieve</option><option value="2">2 — Moderato</option><option value="3">3 — Severo</option></select></div>
               <div class="form-group-inner"><label>Score sensibilità (0.0–1.0)</label><input type="number" id="clin-sensibilita" placeholder="es. 0.30" min="0" max="1" step="0.01" onchange="saveClinical()" /></div>
+            </div>
+            <h5 style="margin:18px 0 10px;font-size:13px;font-weight:700;color:var(--text-dark);letter-spacing:.03em;">PARAMETRI VISIVI</h5>
+            <p class="desc" style="margin:-6px 0 14px;font-size:12px;">Indici osservati a occhio o tramite analisi visiva (scala 0.00–1.00).</p>
+            <div class="form-row">
+              <div class="form-group-inner"><label>Rossore (eritema)</label><input type="number" id="clin-rossore" placeholder="es. 0.20" min="0" max="1" step="0.01" onchange="saveClinical()" /></div>
+              <div class="form-group-inner"><label>Pigmentazione</label><input type="number" id="clin-pigmentazione" placeholder="es. 0.30" min="0" max="1" step="0.01" onchange="saveClinical()" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group-inner"><label>Rugosità superficiale</label><input type="number" id="clin-rugosita" placeholder="es. 0.30" min="0" max="1" step="0.01" onchange="saveClinical()" /></div>
+              <div class="form-group-inner"><label>Dilatazione pori</label><input type="number" id="clin-pori" placeholder="es. 0.40" min="0" max="1" step="0.01" onchange="saveClinical()" /></div>
             </div>
             <div class="disclaimer-banner"><span class="disc-icon">⚠️</span><div>Le formulazioni hanno <strong>valore didattico e indicativo</strong>. Non sostituiscono la validazione di un cosmetologo qualificato.</div></div>
             <div class="wizard-actions">
@@ -913,34 +919,10 @@
                 <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-3"></div></div><div class="sensor-value" id="sval-3">—</div></div>
                 <div class="sensor-status" id="sstatus-3">⏳</div>
               </div>
-              <div class="sensor-row" id="sensor-4">
-                <div class="sensor-icon">🔴</div>
-                <div class="sensor-info"><div class="sensor-name">Mexameter MX-18 — Eritema / Rossore</div><div class="sensor-desc">Misura l'indice di eritema cutaneo (0.05–0.90)</div></div>
-                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-4"></div></div><div class="sensor-value" id="sval-4">—</div></div>
-                <div class="sensor-status" id="sstatus-4">⏳</div>
-              </div>
-              <div class="sensor-row" id="sensor-5">
-                <div class="sensor-icon">🌑</div>
-                <div class="sensor-info"><div class="sensor-name">Mexameter MX-18 — Melanina / Pigmentazione</div><div class="sensor-desc">Misura l'indice di melanina superficiale (0.10–0.90)</div></div>
-                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-5"></div></div><div class="sensor-value" id="sval-5">—</div></div>
-                <div class="sensor-status" id="sstatus-5">⏳</div>
-              </div>
-              <div class="sensor-row" id="sensor-6">
-                <div class="sensor-icon">〰️</div>
-                <div class="sensor-info"><div class="sensor-name">VisioFace Pro — Rugosità superficiale</div><div class="sensor-desc">Profilometria ottica 3D — indice rugosità Ra (0.05–0.90)</div></div>
-                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-6"></div></div><div class="sensor-value" id="sval-6">—</div></div>
-                <div class="sensor-status" id="sstatus-6">⏳</div>
-              </div>
-              <div class="sensor-row" id="sensor-7">
-                <div class="sensor-icon">🔵</div>
-                <div class="sensor-info"><div class="sensor-name">VisioFace Pro — Dilatazione pori</div><div class="sensor-desc">Analisi digitale della dimensione media dei pori (0.05–0.99)</div></div>
-                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-7"></div></div><div class="sensor-value" id="sval-7">—</div></div>
-                <div class="sensor-status" id="sstatus-7">⏳</div>
-              </div>
             </div>
             <div id="acquisition-complete" style="display:none;">
               <div style="background:var(--green-pale);border:1.5px solid var(--green-glass);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--green-d);font-weight:500;margin-bottom:4px;">
-                ✅ Acquisizione completata — 8 sensori rilevati correttamente
+                ✅ Acquisizione completata — 4 sensori rilevati correttamente
               </div>
             </div>
             <div class="wizard-actions" style="margin-top:20px;">
@@ -1055,10 +1037,6 @@
                   <thead><tr><th>Ingrediente</th><th>Funzione</th><th>Concentrazione</th></tr></thead>
                   <tbody id="form-ingredients-tbody"></tbody>
                 </table>
-                <div style="display:flex;align-items:center;gap:12px;margin-top:14px;">
-                  <span style="font-size:13px;color:var(--text-mid);">Compatibilità chimica:</span>
-                  <span class="compat-pill high" id="form-compat-pill">—</span>
-                </div>
               </div>
               <div class="disclaimer-banner" style="margin-bottom:0;"><span class="disc-icon">⚠️</span><div>Formulazione a <strong>scopo didattico</strong>. Richiede validazione da parte di un cosmetologo qualificato.</div></div>
             </div>
@@ -1085,7 +1063,6 @@
             <div class="review-section">
               <h5>🧪 Formulazione</h5>
               <div class="review-row"><span class="review-key">Nome formulazione</span><span class="review-val" id="rev-form-name">—</span></div>
-              <div class="review-row"><span class="review-key">Compatibilità chimica</span><span class="review-val" id="rev-compat">—</span></div>
               <div class="review-row"><span class="review-key">N° ingredienti</span><span class="review-val" id="rev-n-ing">—</span></div>
               <div class="review-row"><span class="review-key">Contesto sessione</span><span class="review-val" id="rev-context">—</span></div>
             </div>
@@ -1099,7 +1076,7 @@
 
         <!-- ══ DETTAGLIO PROFILO ══ -->
         <div id="page-profilo-dettaglio" class="page-section">
-          <div class="detail-back" onclick="showPage('profili',null)">← Torna ai Profili</div>
+          <div class="detail-back" onclick="showPage('analisi',null)">← Torna alle Analisi</div>
           <div class="detail-hero">
             <div class="detail-avatar">🧬</div>
             <div class="detail-id-block">
@@ -1174,52 +1151,128 @@
           </div>
         </div>
 
-        <!-- ══ PROFILI ══ -->
-        <div id="page-profili" class="page-section">
-          <div class="page-intro"><h3 id="profili-title">Profili Pelle</h3><p id="profili-sub">Tutti i profili dermatologici acquisiti e anonimizzati.</p></div>
-          <div class="filter-bar">
-            <input class="search-input" type="text" placeholder="🔍  Cerca per ID o tipo pelle…" />
-            <div class="filter-chip active">Tutti</div><div class="filter-chip">Secca</div><div class="filter-chip">Grassa</div><div class="filter-chip">Mista</div><div class="filter-chip">Sensibile</div>
+        <!-- ══ FORMULAZIONE DETTAGLIO ══ -->
+        <div id="page-formulazione-dettaglio" class="page-section">
+          <div class="detail-back" id="form-det-back-btn" onclick="showPage('analisi',null)">← Torna alle Analisi</div>
+          <div class="detail-hero">
+            <div class="detail-avatar">🧪</div>
+            <div class="detail-id-block">
+              <h2 id="fdet-name">—</h2>
+              <p id="fdet-subtitle">—</p>
+              <div class="detail-badges">
+                <span class="detail-badge badge-green" id="fdet-tipo-badge">—</span>
+                <span class="detail-badge badge-blue" id="fdet-fid-badge">—</span>
+                <span class="detail-badge badge-gold">Generata</span>
+              </div>
+            </div>
           </div>
-          <div class="profiles-grid role-view role-admin role-docente" id="profiles-grid-main"></div>
-          <div class="profiles-grid role-view role-ricercatore" id="profiles-grid-ricercatore"></div>
+
+          <div class="detail-params-grid">
+            <div class="detail-param-card">
+              <div class="dpc-label">Idratazione</div>
+              <div class="dpc-value"><span id="fdet-idrat">—</span><span class="dpc-unit">%</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-blue" id="fdet-idrat-bar" style="width:0%"></div></div>
+            </div>
+            <div class="detail-param-card">
+              <div class="dpc-label">pH cutaneo</div>
+              <div class="dpc-value"><span id="fdet-ph">—</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-gold" id="fdet-ph-bar" style="width:0%"></div></div>
+            </div>
+            <div class="detail-param-card">
+              <div class="dpc-label">Sebo (µg/cm²)</div>
+              <div class="dpc-value"><span id="fdet-sebo">—</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-purple" id="fdet-sebo-bar" style="width:0%"></div></div>
+            </div>
+            <div class="detail-param-card">
+              <div class="dpc-label">Elasticità</div>
+              <div class="dpc-value"><span id="fdet-elast">—</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-green" id="fdet-elast-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="detail-two-col">
+            <div class="detail-card">
+              <h4>🧴 Ingredienti formulazione</h4>
+              <div id="fdet-ingredients-list"></div>
+            </div>
+            <div class="detail-card">
+              <h4>📊 Analisi pelle — <span id="fdet-profile-ref">—</span></h4>
+              <div class="detail-row"><span class="detail-row-label">Tipo pelle</span><span class="detail-row-value" id="fdet-tipo-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Sensibilità</span><span class="detail-row-value" id="fdet-sens-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Idratazione</span><span class="detail-row-value" id="fdet-idrat-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">pH cutaneo</span><span class="detail-row-value" id="fdet-ph-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Sebo</span><span class="detail-row-value" id="fdet-sebo-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Elasticità</span><span class="detail-row-value" id="fdet-elast-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Acne</span><span class="detail-row-value" id="fdet-acne">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Fotoaging</span><span class="detail-row-value" id="fdet-fotoaging">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Rossore</span><span class="detail-row-value" id="fdet-rossore">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Pigmentazione</span><span class="detail-row-value" id="fdet-pigmentazione">—</span></div>
+            </div>
+          </div>
         </div>
 
-        <!-- ══ FORMULAZIONI ══ -->
-        <div id="page-formulazioni" class="page-section">
-          <div class="page-intro"><h3 id="form-title">Formulazioni</h3><p id="form-sub">Formulazioni cosmetiche generate dall'AI — da revisionare o esportare.</p></div>
+        <!-- ══ ANALISI ══ -->
+        <div id="page-analisi" class="page-section">
+          <div class="page-intro"><h3>Analisi</h3><p>Storico delle analisi effettuate — profilo pelle e formulazione associata.</p></div>
           <div class="disclaimer-banner"><span class="disc-icon">⚠️</span><div>Le formulazioni hanno <strong>valore didattico e indicativo</strong>. Non sostituiscono la validazione di un cosmetologo qualificato.</div></div>
           <div class="filter-bar">
-            <input class="search-input" type="text" placeholder="🔍  Cerca formulazione…" />
-            <div class="filter-chip active">Tutte</div><div class="filter-chip">Completate</div><div class="filter-chip">Bozze</div>
+            <input class="search-input" type="text" id="analisi-search" placeholder="🔍  Cerca per ID, tipo pelle o formulazione…" />
+            <div class="filter-chip active" data-filter="all"       onclick="filterAnalisi(this)">Tutte</div>
+            <div class="filter-chip"        data-filter="secca"     onclick="filterAnalisi(this)">Secca</div>
+            <div class="filter-chip"        data-filter="grassa"    onclick="filterAnalisi(this)">Grassa</div>
+            <div class="filter-chip"        data-filter="mista"     onclick="filterAnalisi(this)">Mista</div>
+            <div class="filter-chip"        data-filter="sensibile" onclick="filterAnalisi(this)">Sensibile</div>
+            <div class="filter-chip"        data-filter="normale"   onclick="filterAnalisi(this)">Normale</div>
           </div>
-          <div class="formulations-list role-view role-admin role-docente">
-            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">28</div><div class="formulation-title"><h5>Siero idratante leggero — PRF-0047</h5><p>26/05/2026 · Pelle mista</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Acido ialuronico (2%)</span><span class="ingredient-chip highlight">Niacinamide (4%)</span><span class="ingredient-chip">Glicerina (5%)</span><span class="ingredient-chip">Estratto di aloe (3%)</span><span class="ingredient-chip">Acqua distillata q.b.</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:88%"></div></div><span class="compat-pct">88%</span></div></div></div>
-            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">27</div><div class="formulation-title"><h5>Crema seboregolatrice — PRF-0046</h5><p>25/05/2026 · Pelle grassa</p></div><span class="status-badge in-corso">In revisione</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Acido salicilico (1%)</span><span class="ingredient-chip highlight">Zinco PCA (1%)</span><span class="ingredient-chip">Estratto di tè verde (2%)</span><span class="ingredient-chip">Gel di aloe vera (8%)</span><span class="ingredient-chip">Niacinamide (5%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill mid" style="width:72%"></div></div><span class="compat-pct">72%</span></div></div></div>
-            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">26</div><div class="formulation-title"><h5>Balsamo nutriente ricco — PRF-0045</h5><p>25/05/2026 · Pelle secca</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Burro di karité (10%)</span><span class="ingredient-chip highlight">Olio di argan (5%)</span><span class="ingredient-chip">Ceramide NP (1%)</span><span class="ingredient-chip">Acido ialuronico (1%)</span><span class="ingredient-chip">Vitamina E (0.5%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:94%"></div></div><span class="compat-pct">94%</span></div></div></div>
-          </div>
-          <div class="formulations-list role-view role-ricercatore">
-            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">26</div><div class="formulation-title"><h5>Balsamo nutriente ricco — PRF-0045</h5><p>25/05/2026 · Pelle secca</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Burro di karité (10%)</span><span class="ingredient-chip highlight">Olio di argan (5%)</span><span class="ingredient-chip">Ceramide NP (1%)</span><span class="ingredient-chip">Acido ialuronico (1%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:94%"></div></div><span class="compat-pct">94%</span></div></div></div>
-            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">24</div><div class="formulation-title"><h5>Crema idratante quotidiana — PRF-0041</h5><p>20/05/2026 · Pelle mista</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Acido ialuronico (1.5%)</span><span class="ingredient-chip highlight">Glicerina (8%)</span><span class="ingredient-chip">Estratto di aloe (4%)</span><span class="ingredient-chip">Niacinamide (3%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:91%"></div></div><span class="compat-pct">91%</span></div></div></div>
-          </div>
+          <div class="formulations-list" id="analisi-list"></div>
         </div>
 
         <!-- ══ CATALOGO INGREDIENTI ══ -->
         <div id="page-ingredienti" class="page-section">
           <div class="page-intro"><h3>Catalogo Ingredienti</h3><p>Principi attivi e ingredienti disponibili per la formulazione.</p></div>
           <div class="filter-bar">
-            <input class="search-input" type="text" placeholder="🔍  Cerca ingrediente o principio attivo…" />
-            <div class="filter-chip active">Tutti</div><div class="filter-chip">Idratanti</div><div class="filter-chip">Seboregolatoli</div><div class="filter-chip">Botanici</div>
+            <input class="search-input" type="text" id="ing-search" placeholder="🔍  Cerca ingrediente o principio attivo…" />
+            <div class="filter-chip active" data-filter="all"             onclick="filterIngredients(this)">Tutti</div>
+            <div class="filter-chip"        data-filter="idratante"       onclick="filterIngredients(this)">Idratanti</div>
+            <div class="filter-chip"        data-filter="seboregolatore"  onclick="filterIngredients(this)">Seboregolatori</div>
+            <div class="filter-chip"        data-filter="botanico"        onclick="filterIngredients(this)">Botanici</div>
+            <div class="filter-chip"        data-filter="lenitivo"        onclick="filterIngredients(this)">Lenitivi</div>
+            <div class="filter-chip"        data-filter="esfoliante"      onclick="filterIngredients(this)">Esfolianti</div>
+            <div class="filter-chip"        data-filter="antiage"         onclick="filterIngredients(this)">Antiage</div>
+            <div class="filter-chip"        data-filter="antiossidante"   onclick="filterIngredients(this)">Antiossidanti</div>
           </div>
-          <div class="ingredients-grid">
-            <div class="ingredient-card"><div class="ing-emoji">💧</div><div class="ing-name">Acido Ialuronico</div><div class="ing-type">Principio attivo</div><div class="ing-tags"><span class="ing-tag">Idratante</span><span class="ing-tag">Tutti i tipi</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🟡</div><div class="ing-name">Niacinamide</div><div class="ing-type">Vitamina B3</div><div class="ing-tags"><span class="ing-tag">Anti-sebum</span><span class="ing-tag">Pori</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🌿</div><div class="ing-name">Estratto di Aloe</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Lenitivo</span><span class="ing-tag">Sensibile</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🫚</div><div class="ing-name">Olio di Argan</div><div class="ing-type">Olio vegetale</div><div class="ing-tags"><span class="ing-tag">Nutriente</span><span class="ing-tag">Secca</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🧈</div><div class="ing-name">Burro di Karité</div><div class="ing-type">Grasso vegetale</div><div class="ing-tags"><span class="ing-tag">Emolliente</span><span class="ing-tag">Secca</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🍵</div><div class="ing-name">Tè Verde</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Grassa</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🔬</div><div class="ing-name">Acido Salicilico</div><div class="ing-type">Beta-idrossiacido</div><div class="ing-tags"><span class="ing-tag">Esfoliante</span><span class="ing-tag">Grassa</span></div></div>
-            <div class="ingredient-card"><div class="ing-emoji">🛡️</div><div class="ing-name">Ceramide NP</div><div class="ing-type">Lipide strutturale</div><div class="ing-tags"><span class="ing-tag">Barriera</span><span class="ing-tag">Secca</span></div></div>
+          <div class="ingredients-grid" id="ingredients-grid">
+            <div class="ingredient-card" data-type="idratante"      data-search="acido ialuronico lmw hmw umettante polimerico idratazione volumizzante"><div class="ing-emoji">💧</div><div class="ing-name">Acido Ialuronico</div><div class="ing-type">Umettante polimerico</div><div class="ing-tags"><span class="ing-tag">Idratante</span><span class="ing-tag">Volumizzante</span></div></div>
+            <div class="ingredient-card" data-type="idratante"      data-search="glicerina vegetale umettante classico"><div class="ing-emoji">💦</div><div class="ing-name">Glicerina vegetale</div><div class="ing-type">Umettante</div><div class="ing-tags"><span class="ing-tag">Idratante</span><span class="ing-tag">Tutti i tipi</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="estratto aloe vera botanico lenitivo idratante"><div class="ing-emoji">🌿</div><div class="ing-name">Estratto di Aloe Vera</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Lenitivo</span><span class="ing-tag">Idratante</span></div></div>
+            <div class="ingredient-card" data-type="lenitivo"       data-search="pantenolo vitamina b5 riparatore lenitivo"><div class="ing-emoji">🩹</div><div class="ing-name">Pantenolo (Vit. B5)</div><div class="ing-type">Vitamina</div><div class="ing-tags"><span class="ing-tag">Riparatore</span><span class="ing-tag">Lenitivo</span></div></div>
+            <div class="ingredient-card" data-type="esfoliante"     data-search="acido salicilico bha esfoliante comedolitico antimicrobico grassa acne"><div class="ing-emoji">🔬</div><div class="ing-name">Acido Salicilico</div><div class="ing-type">Beta-idrossiacido (BHA)</div><div class="ing-tags"><span class="ing-tag">Esfoliante</span><span class="ing-tag">Acne</span></div></div>
+            <div class="ingredient-card" data-type="seboregolatore" data-search="niacinamide vitamina b3 sebo pori uniformante"><div class="ing-emoji">🟡</div><div class="ing-name">Niacinamide (Vit. B3)</div><div class="ing-type">Vitamina</div><div class="ing-tags"><span class="ing-tag">Anti-sebo</span><span class="ing-tag">Pori</span></div></div>
+            <div class="ingredient-card" data-type="seboregolatore" data-search="zinco pca minerale seboregolatore astringente"><div class="ing-emoji">⚗️</div><div class="ing-name">Zinco PCA</div><div class="ing-type">Minerale organico</div><div class="ing-tags"><span class="ing-tag">Seboregolatore</span><span class="ing-tag">Astringente</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="estratto te verde botanico antiossidante astringente grassa"><div class="ing-emoji">🍵</div><div class="ing-name">Tè Verde</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Grassa</span></div></div>
+            <div class="ingredient-card" data-type="antiage"        data-search="retinolo vitamina a retinoide antiage rinnovamento cellulare"><div class="ing-emoji">✨</div><div class="ing-name">Retinolo (Vit. A)</div><div class="ing-type">Retinoide</div><div class="ing-tags"><span class="ing-tag">Antiage</span><span class="ing-tag">Rinnovamento</span></div></div>
+            <div class="ingredient-card" data-type="antiossidante"  data-search="vitamina c acido ascorbico antiossidante schiarente collagene"><div class="ing-emoji">🍊</div><div class="ing-name">Vitamina C</div><div class="ing-type">Vitamina</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Schiarente</span></div></div>
+            <div class="ingredient-card" data-type="antiage"        data-search="peptidi cosmetici stimolante collagene ristrutturante antiage"><div class="ing-emoji">🧬</div><div class="ing-name">Peptidi</div><div class="ing-type">Peptide cosmetico</div><div class="ing-tags"><span class="ing-tag">Collagene</span><span class="ing-tag">Antiage</span></div></div>
+            <div class="ingredient-card" data-type="lenitivo"       data-search="bisabololo lenitivo antinfiammatorio sensibile"><div class="ing-emoji">🌸</div><div class="ing-name">Bisabololo</div><div class="ing-type">Principio attivo</div><div class="ing-tags"><span class="ing-tag">Lenitivo</span><span class="ing-tag">Antinfiammatorio</span></div></div>
+            <div class="ingredient-card" data-type="idratante"      data-search="ceramide np ap barriera lipidica ripristino idrolipidico secca"><div class="ing-emoji">🛡️</div><div class="ing-name">Ceramide NP / AP</div><div class="ing-type">Ceramide</div><div class="ing-tags"><span class="ing-tag">Barriera</span><span class="ing-tag">Secca</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="estratto calendula botanico calmante antinfiammatorio sensibile"><div class="ing-emoji">🌼</div><div class="ing-name">Estratto di Calendula</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Calmante</span><span class="ing-tag">Sensibile</span></div></div>
+            <div class="ingredient-card" data-type="seboregolatore" data-search="azelaico acido anti-eritema seboregolatore schiarente rosacea"><div class="ing-emoji">🧪</div><div class="ing-name">Acido Azelaico</div><div class="ing-type">Acido dicarbossilico</div><div class="ing-tags"><span class="ing-tag">Anti-eritema</span><span class="ing-tag">Seboregolatore</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="centella asiatica botanico vasoprotettore cicatrizzante rosacea"><div class="ing-emoji">🌱</div><div class="ing-name">Centella Asiatica</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Vasoprotettore</span><span class="ing-tag">Cicatrizzante</span></div></div>
+            <div class="ingredient-card" data-type="lenitivo"       data-search="allantoina ureide calmante keratolitico dolce"><div class="ing-emoji">☁️</div><div class="ing-name">Allantoina</div><div class="ing-type">Ureide</div><div class="ing-tags"><span class="ing-tag">Calmante</span><span class="ing-tag">Lenitivo</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="estratto liquirizia botanico depigmentante lenitivo vasoprotettore macchie"><div class="ing-emoji">🟤</div><div class="ing-name">Estratto di Liquirizia</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Depigmentante</span><span class="ing-tag">Lenitivo</span></div></div>
+            <div class="ingredient-card" data-type="antiossidante"  data-search="coq10 ubiquinone coenzima antiossidante cellulare energizzante antiage"><div class="ing-emoji">⚡</div><div class="ing-name">CoQ10 (Ubiquinone)</div><div class="ing-type">Coenzima</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Antiage</span></div></div>
+            <div class="ingredient-card" data-type="esfoliante"     data-search="acido kojico inibitore tirosinasi anti-macchie schiarente"><div class="ing-emoji">⬜</div><div class="ing-name">Acido Kojico</div><div class="ing-type">Acido organico</div><div class="ing-tags"><span class="ing-tag">Anti-macchie</span><span class="ing-tag">Schiarente</span></div></div>
+            <div class="ingredient-card" data-type="idratante"      data-search="burro karite vegetale emolliente nutriente secca atopica"><div class="ing-emoji">🧈</div><div class="ing-name">Burro di Karité</div><div class="ing-type">Burro vegetale</div><div class="ing-tags"><span class="ing-tag">Emolliente</span><span class="ing-tag">Secca</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="olio argan vegetale nutriente vitamina e secca"><div class="ing-emoji">🫚</div><div class="ing-name">Olio di Argan</div><div class="ing-type">Olio vegetale</div><div class="ing-tags"><span class="ing-tag">Nutriente</span><span class="ing-tag">Secca</span></div></div>
+            <div class="ingredient-card" data-type="antiossidante"  data-search="vitamina e tocoferolo antiossidante stabilizzante"><div class="ing-emoji">🟠</div><div class="ing-name">Vitamina E (Tocoferolo)</div><div class="ing-type">Vitamina</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Stabilizzante</span></div></div>
+            <div class="ingredient-card" data-type="antiossidante"  data-search="resveratrolo polifenolo antiossidante anti-inquinamento pollution"><div class="ing-emoji">🍇</div><div class="ing-name">Resveratrolo</div><div class="ing-type">Polifenolo</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Anti-pollution</span></div></div>
+            <div class="ingredient-card" data-type="antiossidante"  data-search="acido ferulico fenolico potenziatore vitamina c e"><div class="ing-emoji">🌾</div><div class="ing-name">Acido Ferulico</div><div class="ing-type">Acido fenolico</div><div class="ing-tags"><span class="ing-tag">Potenziatore Vit. C+E</span></div></div>
+            <div class="ingredient-card" data-type="idratante"      data-search="acidi grassi omega 6 lipide barriera riparatore antinfiammatorio"><div class="ing-emoji">🔗</div><div class="ing-name">Acidi Grassi Omega-6</div><div class="ing-type">Lipide</div><div class="ing-tags"><span class="ing-tag">Barriera</span><span class="ing-tag">Antinfiammatorio</span></div></div>
+            <div class="ingredient-card" data-type="idratante"      data-search="colesterolo lipide barriera cutanea componente"><div class="ing-emoji">🧱</div><div class="ing-name">Colesterolo</div><div class="ing-type">Lipide</div><div class="ing-tags"><span class="ing-tag">Barriera cutanea</span></div></div>
+            <div class="ingredient-card" data-type="botanico"       data-search="estratto avena colloidale botanico antinfiammatorio lenitivo atopica"><div class="ing-emoji">🌾</div><div class="ing-name">Avena Colloidale</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Lenitivo</span><span class="ing-tag">Atopica</span></div></div>
+            <div class="ingredient-card" data-type="antiage"        data-search="isoflavonoidi soia fitoestrogeno attivita estrogenica cutanea menopausa"><div class="ing-emoji">🫘</div><div class="ing-name">Isoflavonoidi di Soia</div><div class="ing-type">Fitoestrogeno</div><div class="ing-tags"><span class="ing-tag">Antiage</span><span class="ing-tag">Menopausa</span></div></div>
+            <div class="ingredient-card" data-type="antiage"        data-search="peptidi ghk cu rame rigenerante stimolante collagene antiage"><div class="ing-emoji">🔵</div><div class="ing-name">Peptidi GHK-Cu</div><div class="ing-type">Peptide al rame</div><div class="ing-tags"><span class="ing-tag">Rigenerante</span><span class="ing-tag">Collagene</span></div></div>
+            <div class="ingredient-card" data-type="idratante"      data-search="acqua distillata solvente universale veicolo base"><div class="ing-emoji">🫧</div><div class="ing-name">Acqua Distillata</div><div class="ing-type">Solvente</div><div class="ing-tags"><span class="ing-tag">Base</span><span class="ing-tag">Veicolo</span></div></div>
           </div>
         </div>
 
@@ -1264,7 +1317,7 @@
             <div class="config-section-card">
               <div class="card-header"><h4>🤖 Motore AI</h4></div>
               <div class="config-row"><div class="config-row-info"><h5>Modalità raccomandazione</h5><p>Approccio corrente del motore</p></div><select style="font-size:12px;padding:5px 8px;border:1.5px solid rgba(0,0,0,0.09);border-radius:7px;background:rgba(255,255,255,0.65);"><option>Bilanciato</option><option>Prudente</option><option>Creativo</option></select></div>
-              <div class="config-row"><div class="config-row-info"><h5>Soglia compatibilità minima</h5><p>Formulazioni sotto soglia non mostrate</p></div><span style="font-size:13px;font-weight:700;color:var(--green-d);">65%</span></div>
+
               <div class="config-row"><div class="config-row-info"><h5>Disclaimer formulazioni</h5><p>Avviso didattico sempre visibile</p></div><div class="toggle on"></div></div>
             </div>
             <div class="config-section-card">
@@ -1299,14 +1352,14 @@ const userData = {
 };
 
 const pageTitles = {
-  'dashboard':          ['Dashboard',           'Panoramica laboratorio'],
-  'nuova-analisi':      ['Nuova Analisi',        'Wizard acquisizione dati'],
-  'profili':            ['Profili Pelle',        'Profili dermatologici anonimizzati'],
-  'profilo-dettaglio':  ['Dettaglio Profilo',    'Parametri estesi e formulazioni associate'],
-  'formulazioni':       ['Formulazioni',         'Elenco formulazioni generate'],
-  'ingredienti':        ['Catalogo Ingredienti', 'Principi attivi e ingredienti disponibili'],
-  'utenti':             ['Gestione Utenti',      'Accessi e ruoli piattaforma'],
-  'configurazione':     ['Configurazione',       'Impostazioni sistema e GDPR'],
+
+  'nuova-analisi':            ['Nuova Analisi',          'Wizard acquisizione dati'],
+  'analisi':                  ['Analisi',                'Storico analisi — profilo pelle e formulazione'],
+  'profilo-dettaglio':        ['Dettaglio Analisi',      'Parametri estesi e formulazione associata'],
+  'formulazione-dettaglio':   ['Dettaglio Analisi',      'Parametri estesi e formulazione associata'],
+  'ingredienti':              ['Catalogo Ingredienti',   'Principi attivi e ingredienti disponibili'],
+  'utenti':                   ['Gestione Utenti',        'Accessi e ruoli piattaforma'],
+  'configurazione':           ['Configurazione',         'Impostazioni sistema e GDPR'],
 };
 
 // Dati statici profili (base)
@@ -1314,9 +1367,9 @@ const pageTitles = {
 const profilesData = {
   'PRF-0001': { eta:58, sesso:'M', fitzpatrick:'I',   idrat:37, ph:5.0, sebo:99,  elast:0.78, rossore:0.10, pigmentazione:0.74, rugosita:0.55, pori:0.59, sensibilita:0.03, acne:0, fotoaging:1, date:'26 mag 2026', forms:['F001'] },
   'PRF-0002': { eta:32, sesso:'M', fitzpatrick:'V',   idrat:73, ph:5.8, sebo:33,  elast:0.43, rossore:0.45, pigmentazione:0.28, rugosita:0.87, pori:0.76, sensibilita:0.16, acne:3, fotoaging:2, date:'25 mag 2026', forms:['F002'] },
-  'PRF-0003': { eta:35, sesso:'M', fitzpatrick:'II',  idrat:31, ph:5.2, sebo:53,  elast:0.92, rossore:0.10, pigmentazione:0.85, rugosita:0.60, pori:0.81, sensibilita:0.73, acne:0, fotoaging:3, date:'25 mag 2026', forms:['F003','F007'] },
+  'PRF-0003': { eta:35, sesso:'M', fitzpatrick:'II',  idrat:31, ph:5.2, sebo:53,  elast:0.92, rossore:0.10, pigmentazione:0.85, rugosita:0.60, pori:0.81, sensibilita:0.73, acne:0, fotoaging:3, date:'25 mag 2026', forms:['F003'] },
   'PRF-0004': { eta:23, sesso:'F', fitzpatrick:'VI',  idrat:44, ph:6.2, sebo:95,  elast:0.70, rossore:0.07, pigmentazione:0.66, rugosita:0.77, pori:0.99, sensibilita:0.86, acne:0, fotoaging:3, date:'24 mag 2026', forms:['F004'] },
-  'PRF-0005': { eta:35, sesso:'F', fitzpatrick:'VI',  idrat:65, ph:4.8, sebo:31,  elast:0.84, rossore:0.67, pigmentazione:0.70, rugosita:0.68, pori:0.07, sensibilita:0.63, acne:1, fotoaging:1, date:'24 mag 2026', forms:['F005','F016'] },
+  'PRF-0005': { eta:35, sesso:'F', fitzpatrick:'VI',  idrat:65, ph:4.8, sebo:31,  elast:0.84, rossore:0.67, pigmentazione:0.70, rugosita:0.68, pori:0.07, sensibilita:0.63, acne:1, fotoaging:1, date:'24 mag 2026', forms:['F005'] },
   'PRF-0006': { eta:47, sesso:'F', fitzpatrick:'III', idrat:48, ph:5.8, sebo:92,  elast:0.94, rossore:0.32, pigmentazione:0.77, rugosita:0.06, pori:0.82, sensibilita:0.81, acne:3, fotoaging:2, date:'20 mag 2026', forms:['F006'] },
 };
 
@@ -1416,13 +1469,7 @@ function applyRole(role) {
   document.querySelectorAll('.role-view').forEach(el => {
     el.style.display = el.classList.contains('role-' + role) ? '' : 'none';
   });
-  document.getElementById('nav-profili-label').textContent      = role === 'ricercatore' ? 'I Miei Profili'       : 'Profili Pelle';
-  document.getElementById('nav-formulazioni-label').textContent = role === 'ricercatore' ? 'Le Mie Formulazioni'  : 'Formulazioni';
-  document.getElementById('profili-title').textContent = role === 'ricercatore' ? 'I Miei Profili'      : 'Profili Pelle';
-  document.getElementById('profili-sub').textContent   = role === 'ricercatore' ? 'I tuoi profili personali.' : role === 'docente' ? 'Profili dei tuoi ricercatori e tuoi.' : 'Tutti i profili dermatologici acquisiti.';
-  document.getElementById('form-title').textContent    = role === 'ricercatore' ? 'Le Mie Formulazioni' : 'Formulazioni';
-  document.getElementById('form-sub').textContent      = role === 'ricercatore' ? 'Le tue formulazioni generate.' : role === 'docente' ? 'Formulazioni dei ricercatori e tue.' : 'Tutte le formulazioni generate dall\'AI.';
-  showPage('dashboard', document.querySelector('[data-page="dashboard"]'));
+  showPage('analisi', document.querySelector('[data-page="analisi"]'));
 }
 
 function showPage(name, navBtn) {
@@ -1430,7 +1477,10 @@ function showPage(name, navBtn) {
   const t = document.getElementById('page-' + name);
   if (t) t.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  if (navBtn) navBtn.classList.add('active');
+  // se non viene passato il navBtn (es. quick-action dalla topbar), evidenzia
+  // comunque la voce sidebar corrispondente alla pagina
+  const effectiveBtn = navBtn || document.querySelector('.nav-item[data-page="' + name + '"]');
+  if (effectiveBtn) effectiveBtn.classList.add('active');
   const titles = pageTitles[name] || [name, ''];
   document.getElementById('page-title').textContent    = titles[0];
   document.getElementById('page-subtitle').textContent = titles[1];
@@ -1455,14 +1505,69 @@ function toggleSource(el) {
 }
 
 // ══════════════════════════════════════════════
-//  DETTAGLIO PROFILO
+//  ANALISI (profilo + formulazione unificati)
+// ══════════════════════════════════════════════
+function buildAnalisiCard(id, p) {
+  const fid   = (p.forms || [])[0] || '';
+  const f     = formulationsData[fid] || { name: fid };
+  const ings  = formulaIngredients[fid] || [];
+  const typeLow = (p.tipo || '').toLowerCase();
+  const ingChips = ings.slice(0, 3).map(([name, fn, conc, hi]) =>
+    `<span class="ingredient-chip ${hi ? 'highlight' : ''}">${name} (${conc})</span>`
+  ).join('');
+  return `<div class="formulation-card" data-type="${typeLow}" data-search="${(id + ' ' + (p.tipo||'') + ' ' + (f.name||'')).toLowerCase()}" onclick="openFormulation('${fid}','${id}','analisi')" style="cursor:pointer">
+    <div class="formulation-card-header">
+      <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--purple-pale),#e8d5f5);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧬</div>
+      <div class="formulation-title">
+        <h5>${f.name || fid}</h5>
+        <p style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span>${p.date || '—'} · ${id} · ${fid}</span>
+          <span style="display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;font-weight:700;background:${({'secca':'rgba(59,130,246,0.12)','grassa':'rgba(245,158,11,0.12)','mista':'rgba(139,92,246,0.12)','sensibile':'rgba(239,68,68,0.12)','normale':'rgba(16,185,129,0.12)'}[typeLow]||'rgba(0,0,0,0.07)')};color:${({'secca':'#1d4ed8','grassa':'#b45309','mista':'#6d28d9','sensibile':'#b91c1c','normale':'#047857'}[typeLow]||'var(--text-mid)')}">${p.tipo || '—'}</span>
+        </p>
+      </div>
+      <span class="status-badge completata">Generata</span>
+    </div>
+    <div class="formulation-card-body">
+      <div style="display:flex;gap:16px;margin-bottom:8px;font-size:12px;color:var(--text-mid)">
+        <span>💧 Idrat. <strong>${p.idrat}%</strong></span>
+        <span>⚗️ pH <strong>${p.ph}</strong></span>
+        <span>🛢 Sebo <strong>${p.sebo}</strong></span>
+        <span>🔗 Elast. <strong>${p.elast}</strong></span>
+      </div>
+      <div class="ingredients-preview">${ingChips}</div>
+    </div>
+  </div>`;
+}
+
+function renderAnalisiGrid() {
+  const ids = Object.keys(profilesData);
+  ids.forEach(id => {
+    const p = profilesData[id];
+    if (!p.tipo) p.tipo = deriveType(p);
+    if (!p.sens) p.sens = deriveSens(p);
+  });
+  const el = document.getElementById('analisi-list');
+  if (el) el.innerHTML = ids.map(id => buildAnalisiCard(id, profilesData[id])).join('');
+  const badge = document.getElementById('nav-analisi-badge');
+  if (badge) badge.textContent = ids.length;
+}
+
+let _analisiSearch = '', _analisiChip = 'all';
+function filterAnalisi(chipEl) {
+  if (chipEl) { activateChip(chipEl); _analisiChip = chipEl.dataset.filter; }
+  applyCardFilter('#analisi-list', _analisiSearch, _analisiChip);
+}
+
+// ══════════════════════════════════════════════
+//  DETTAGLIO PROFILO (legacy — tenuto per compatibilità)
 // ══════════════════════════════════════════════
 function buildProfileCard(id, p) {
   const nForms = (p.forms || []).length;
   const formTag = nForms === 0 ? 'Bozza' : nForms + ' formulazion' + (nForms === 1 ? 'e' : 'i');
   const fid = (p.forms || [])[0] || '';
   const fname = fid ? ((formulationsData[fid] || {}).name || fid) : '';
-  return `<div class="profile-card">
+  const typeLow = (p.tipo || '').toLowerCase();
+  return `<div class="profile-card" data-type="${typeLow}" data-search="${(id + ' ' + (p.tipo||'') + ' ' + fname).toLowerCase()}">
     <div class="profile-top">
       <div class="profile-avatar">🧬</div>
       <div>
@@ -1494,11 +1599,116 @@ function buildProfileCard(id, p) {
 
 function renderProfileGrids() {
   const ids = Object.keys(profilesData);
+  // ad ogni rerender, ricalcola tipo e sensibilità così sono coerenti coi parametri
+  ids.forEach(id => {
+    const p = profilesData[id];
+    if (!p.tipo) p.tipo = deriveType(p);
+    if (!p.sens) p.sens = deriveSens(p);
+  });
   const mainEl = document.getElementById('profiles-grid-main');
   const ricEl  = document.getElementById('profiles-grid-ricercatore');
   if (mainEl) mainEl.innerHTML = ids.map(id => buildProfileCard(id, profilesData[id])).join('');
   if (ricEl)  ricEl.innerHTML  = ids.filter(id => (profilesData[id].forms||[]).length > 0)
                                     .map(id => buildProfileCard(id, profilesData[id])).join('');
+}
+
+// ══════════════════════════════════════════════
+//  RENDER FORMULAZIONI (dai profili)
+// ══════════════════════════════════════════════
+function buildFormulationCard(profileId, p, fid, num, isRicercatore) {
+  const f = formulationsData[fid] || { name: fid };
+  const ings = formulaIngredients[fid] || [];
+  const ingChips = ings.slice(0, isRicercatore ? 4 : 5).map(([name, fn, conc, hi]) =>
+    `<span class="ingredient-chip ${hi ? 'highlight' : ''}">${name} (${conc})</span>`
+  ).join('');
+  return `<div class="formulation-card" data-status="completed" data-search="${(f.name + ' ' + profileId + ' ' + p.tipo).toLowerCase()}" onclick="openFormulation('${fid}','${profileId}')" style="cursor:pointer">
+    <div class="formulation-card-header">
+      <div class="formulation-num">${num}</div>
+      <div class="formulation-title">
+        <h5>${f.name} — ${profileId}</h5>
+        <p>${p.date || '—'} · Pelle ${p.tipo || '—'} · ${fid}</p>
+      </div>
+      <span class="status-badge completata">Generata</span>
+    </div>
+    <div class="formulation-card-body">
+      <div class="ingredients-preview">${ingChips}</div>
+    </div>
+  </div>`;
+}
+
+function renderFormulationsList() {
+  // raccoglie tutte le coppie profilo↔formulazione (un profilo può avere più forms)
+  const pairs = [];
+  Object.keys(profilesData).forEach(pid => {
+    (profilesData[pid].forms || []).forEach(fid => pairs.push({ pid, fid }));
+  });
+  const total = pairs.length;
+  // numerazione decrescente: la più recente = numero più alto
+  const mainEl = document.getElementById('formulations-list-main');
+  const ricEl  = document.getElementById('formulations-list-ricercatore');
+  if (mainEl) {
+    mainEl.innerHTML = pairs.map((pair, idx) =>
+      buildFormulationCard(pair.pid, profilesData[pair.pid], pair.fid, total - idx, false)
+    ).join('');
+  }
+  if (ricEl) {
+    // simulazione: il ricercatore vede solo una parte delle formulazioni (quelle più recenti)
+    const ricPairs = pairs.slice(0, Math.max(2, Math.floor(pairs.length / 2)));
+    ricEl.innerHTML = ricPairs.map((pair, idx) =>
+      buildFormulationCard(pair.pid, profilesData[pair.pid], pair.fid, ricPairs.length - idx, true)
+    ).join('');
+  }
+  // aggiorna anche il badge sulla sidebar
+  const badge = document.querySelector('#nav-formulazioni .nav-badge');
+  if (badge) badge.textContent = total;
+}
+
+// ══════════════════════════════════════════════
+//  FILTRI (Profili / Formulazioni / Ingredienti)
+// ══════════════════════════════════════════════
+function applyCardFilter(containerSel, query, chip) {
+  const cards = document.querySelectorAll(containerSel + ' > *');
+  const q = (query || '').toLowerCase().trim();
+  cards.forEach(c => {
+    const haystack = (c.getAttribute('data-search') || c.textContent || '').toLowerCase();
+    const type     = (c.getAttribute('data-type')   || '').toLowerCase();
+    const status   = (c.getAttribute('data-status') || '').toLowerCase();
+    let okText = !q || haystack.indexOf(q) >= 0;
+    let okChip = true;
+    if (chip && chip !== 'all') {
+      okChip = (type === chip) || (status === chip);
+    }
+    c.style.display = (okText && okChip) ? '' : 'none';
+  });
+}
+
+function activateChip(chipEl) {
+  if (!chipEl) return;
+  chipEl.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chipEl.classList.add('active');
+}
+
+// Profili
+let _profSearch = '', _profChip = 'all';
+function filterProfiles(chipEl) {
+  if (chipEl) { activateChip(chipEl); _profChip = chipEl.dataset.filter; }
+  applyCardFilter('#profiles-grid-main',         _profSearch, _profChip);
+  applyCardFilter('#profiles-grid-ricercatore',  _profSearch, _profChip);
+}
+
+// Formulazioni
+let _formSearch = '', _formChip = 'all';
+function filterFormulations(chipEl) {
+  if (chipEl) { activateChip(chipEl); _formChip = chipEl.dataset.filter; }
+  applyCardFilter('#formulations-list-main',        _formSearch, _formChip);
+  applyCardFilter('#formulations-list-ricercatore', _formSearch, _formChip);
+}
+
+// Ingredienti
+let _ingSearch = '', _ingChip = 'all';
+function filterIngredients(chipEl) {
+  if (chipEl) { activateChip(chipEl); _ingChip = chipEl.dataset.filter; }
+  applyCardFilter('#ingredients-grid', _ingSearch, _ingChip);
 }
 
 function openProfile(id) {
@@ -1558,17 +1768,76 @@ function openProfile(id) {
     listEl.innerHTML = '<p style="font-size:13px;color:var(--text-light);padding:12px 0;">Nessuna formulazione generata per questo profilo.</p>';
   } else {
     listEl.innerHTML = p.forms.map(fid => {
-      const f = formulationsData[fid] || { name: fid, compat: 85 };
-      const compatClass = (f.compat >= 80) ? 'completata' : 'in-corso';
-      return `<div class="assoc-formulation">
+      const f = formulationsData[fid] || { name: fid };
+      return `<div class="assoc-formulation" onclick="openFormulation('${fid}','${id}','profilo-dettaglio')" style="cursor:pointer">
         <div class="assoc-form-num">${fid}</div>
-        <div class="assoc-form-info"><h6>${f.name}</h6><p>${fid} · Compatibilità ${f.compat}%</p></div>
-        <span class="status-badge ${compatClass}" style="font-size:10px;">${f.compat >= 80 ? 'Completata' : 'In revisione'}</span>
+        <div class="assoc-form-info"><h6>${f.name}</h6><p>${fid} · Generata dall'AI</p></div>
+        <span class="status-badge completata" style="font-size:10px;">Apri →</span>
       </div>`;
     }).join('');
   }
 
   showPage('profilo-dettaglio', null);
+}
+
+// ══════════════════════════════════════════════
+//  DETTAGLIO FORMULAZIONE
+// ══════════════════════════════════════════════
+let _formDetBackPage = 'analisi';
+function openFormulation(fid, pid, backPage) {
+  _formDetBackPage = backPage || 'formulazioni';
+  const f  = formulationsData[fid] || { name: fid };
+  const p  = profilesData[pid]     || {};
+  const ings = formulaIngredients[fid] || [];
+
+  const setText = (elId, val) => { const el = document.getElementById(elId); if (el) el.textContent = val; };
+  const setBar  = (elId, pct) => { const el = document.getElementById(elId); if (el) el.style.width = Math.min(Math.max(pct||0,0),100).toFixed(0) + '%'; };
+
+  setText('fdet-name',       f.name || fid);
+  setText('fdet-subtitle',   pid + ' · ' + (p.date || '—') + ' · Pelle ' + (p.tipo || '—'));
+  setText('fdet-tipo-badge', 'Pelle ' + (p.tipo || '—'));
+  setText('fdet-fid-badge',  fid);
+  setText('fdet-profile-ref', pid);
+
+  setText('fdet-idrat', p.idrat ?? '—');
+  setText('fdet-ph',    p.ph    ?? '—');
+  setText('fdet-sebo',  p.sebo  ?? '—');
+  setText('fdet-elast', p.elast ?? '—');
+  setBar('fdet-idrat-bar', p.idrat);
+  setBar('fdet-ph-bar',    ((p.ph - 4) / 3 * 100));
+  setBar('fdet-sebo-bar',  (p.sebo / 120 * 100));
+  setBar('fdet-elast-bar', (p.elast * 100));
+
+  setText('fdet-tipo-ext',  p.tipo  || '—');
+  setText('fdet-sens-ext',  p.sens  || '—');
+  setText('fdet-idrat-ext', (p.idrat  ?? '—') + '%');
+  setText('fdet-ph-ext',    p.ph    ?? '—');
+  setText('fdet-sebo-ext',  (p.sebo  ?? '—') + ' µg/cm²');
+  setText('fdet-elast-ext', p.elast ?? '—');
+  setText('fdet-acne',        'Grado ' + (p.acne        ?? '—') + '/3');
+  setText('fdet-fotoaging',   'Grado ' + (p.fotoaging   ?? '—') + '/3');
+  setText('fdet-rossore',     p.rossore      ?? '—');
+  setText('fdet-pigmentazione', p.pigmentazione ?? '—');
+
+  const listEl = document.getElementById('fdet-ingredients-list');
+  if (listEl) {
+    listEl.innerHTML = ings.length === 0
+      ? '<p style="color:var(--text-light);font-size:13px;">Nessun ingrediente disponibile.</p>'
+      : ings.map(([name, fn, conc, hi]) =>
+          `<div class="detail-row" style="${hi ? 'background:rgba(74,25,112,0.05);border-radius:6px;padding:4px 6px;' : ''}">
+            <span class="detail-row-label" style="flex:1.5">${name}</span>
+            <span class="detail-row-value" style="color:var(--text-mid);font-size:11px;flex:1">${fn}</span>
+            <span class="detail-row-value" style="font-weight:700;color:var(--purple);min-width:50px;text-align:right">${conc}</span>
+          </div>`).join('');
+  }
+
+  const backBtn = document.getElementById('form-det-back-btn');
+  if (backBtn) {
+    backBtn.onclick = () => showPage(_formDetBackPage, null);
+    backBtn.textContent = '← Torna alle Analisi';
+  }
+
+  showPage('formulazione-dettaglio', null);
 }
 
 function startWizardFromProfile() {
@@ -1599,16 +1868,12 @@ function wizardGoTo(step) {
   document.querySelector('.page-content').scrollTop = 0;
 }
 
-// ── Step 2: animazione sensori (range calibrati su dataset reale) ──
+// ── Step 2: animazione sensori (solo i 4 reali del dataset) ──
 const sensorTargets = [
   { key:'idrat',         unit:'%',   range:[20, 85],   decimals:0 },
   { key:'sebo',          unit:'',    range:[5, 120],   decimals:0 },
   { key:'ph',            unit:'',    range:[4.5, 6.5], decimals:1 },
   { key:'elast',         unit:'',    range:[0.30,0.95],decimals:2 },
-  { key:'rossore',       unit:'',    range:[0.05,0.90],decimals:2 },
-  { key:'pigmentazione', unit:'',    range:[0.10,0.90],decimals:2 },
-  { key:'rugosita',      unit:'',    range:[0.05,0.90],decimals:2 },
-  { key:'pori',          unit:'',    range:[0.05,0.99],decimals:2 },
 ];
 
 function startSensorAcquisition() {
@@ -1674,21 +1939,28 @@ function populateProfileStep() {
   const s = wizardData.sensors || {};
   const cl = wizardData.clinical || {};
 
+  // helper per gestire campi vuoti dei form (stringa vuota -> default)
+  const numOr = (v, def) => { const n = parseFloat(v); return Number.isFinite(n) ? n : def; };
+  const intOr = (v, def) => { const n = parseInt(v);  return Number.isFinite(n) ? n : def; };
+
   const p = {
+    // dai 4 sensori
     idrat:         s.idrat         ?? 55,
     sebo:          s.sebo          ?? 60,
     ph:            s.ph            ?? 5.5,
     elast:         s.elast         ?? 0.70,
-    rossore:       s.rossore       ?? 0.20,
-    pigmentazione: s.pigmentazione ?? 0.30,
-    rugosita:      s.rugosita      ?? 0.30,
-    pori:          s.pori          ?? 0.40,
-    sensibilita:   parseFloat(cl.sensibilita ?? 0.20),
-    acne:          parseInt(cl.acne    ?? 0),
-    fotoaging:     parseInt(cl.fotoaging ?? 0),
-    eta:           parseInt(cl.eta      ?? 35),
-    sesso:         cl.sesso         ?? '—',
-    fitzpatrick:   cl.fitzpatrick   ?? '—',
+    // inserimento manuale (parametri visivi)
+    rossore:       numOr(cl.rossore,       0.20),
+    pigmentazione: numOr(cl.pigmentazione, 0.30),
+    rugosita:      numOr(cl.rugosita,      0.30),
+    pori:          numOr(cl.pori,          0.40),
+    // inserimento manuale (anagrafici e clinici)
+    sensibilita:   numOr(cl.sensibilita, 0.20),
+    acne:          intOr(cl.acne,         0),
+    fotoaging:     intOr(cl.fotoaging,    0),
+    eta:           intOr(cl.eta,          35),
+    sesso:         cl.sesso       || '—',
+    fitzpatrick:   cl.fitzpatrick || '—',
   };
 
   const tipoMap = {
@@ -1761,9 +2033,40 @@ const formulaIngredients = {
   'F020': [['Fattori EGF','Rigenerazione cellulare','4.0%',true],['Peptidi tripli','Ristrutturante','3.0%',true],['Ceramide AP','Barriera','1.0%',false],['Vitamina C','Antiossidante','10.0%',false],['Acqua distillata','Solvente','q.b.',false]],
 };
 
-function startAIGeneration() {
+// Chiama il modello reale su /api/predict; in caso di errore usa il fallback locale.
+async function predictFormulation(p) {
+  try {
+    const resp = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eta: p.eta, sesso: p.sesso, fitzpatrick: p.fitzpatrick,
+        elasticita: p.elast, ph: p.ph, idratazione: p.idrat, sebo: p.sebo,
+        rossore: p.rossore, pigmentazione: p.pigmentazione,
+        rugosita: p.rugosita, pori: p.pori, sensibilita: p.sensibilita,
+        acne: p.acne, fotoaging: p.fotoaging
+      })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data || !data.formulazione_id) throw new Error('risposta non valida');
+    // usa la compatibilità reale (probabilità del modello) se disponibile
+    if (data.compat != null && formulationsData[data.formulazione_id]) {
+      formulationsData[data.formulazione_id].compat = data.compat;
+    }
+    return data.formulazione_id;
+  } catch (e) {
+    console.warn('Predict API non disponibile, uso fallback locale:', e);
+    return pickFormulation(p);
+  }
+}
+
+async function startAIGeneration() {
   document.getElementById('formulation-result-block').style.display = 'none';
   document.getElementById('ai-processing-block').style.display = 'block';
+  // ripristina header + spinner (vengono distrutti da showFormulationResult del run precedente)
+  document.getElementById('ai-processing-block').querySelector('h5').innerHTML =
+    '<span class="ai-spinner" id="ai-spinner"></span> Analisi in corso…';
   document.getElementById('ai-spinner').style.display = 'inline-block';
   const nextBtn = document.getElementById('btn-step4-next');
   nextBtn.style.opacity = '.4';
@@ -1771,16 +2074,15 @@ function startAIGeneration() {
 
   const p    = wizardData.profile || {};
   const tipo = p.tipo || 'Normale';
-  const fid  = pickFormulation(p);
+  const fid  = await predictFormulation(p);
   wizardData.selectedFid = fid;
 
   const extraLines = [
-    'Analisi ' + Object.keys(wizardData.sensors||{}).length + ' parametri sensoristici…',
+    'Analisi ' + Object.keys(wizardData.sensors||{}).length + ' parametri sensoristici e ' + Object.keys(wizardData.clinical||{}).filter(k => (wizardData.clinical||{})[k] !== '' && (wizardData.clinical||{})[k] != null).length + ' parametri manuali…',
     'Tipo pelle: ' + tipo + ' · Sensibilità: ' + (p.sens||'—'),
     'Fotoaging: ' + (p.fotoaging||0) + '/3 · Acne: ' + (p.acne||0) + '/3',
     'Consultazione database 20 formulazioni certificate…',
     'Formulazione selezionata: ' + fid + ' — ' + (formulationsData[fid]||{}).name,
-    'Verifica compatibilità chimica ingredienti…',
     'Calcolo concentrazioni ottimali…',
     '✅ Formulazione generata con successo.',
   ];
@@ -1826,9 +2128,6 @@ function showFormulationResult(fid) {
   const newPrfNum = String(Object.keys(profilesData).length + 1).padStart(4,'0');
   document.getElementById('form-result-title').textContent = fd.name + ' (PRF-' + newPrfNum + ')';
   document.getElementById('form-result-meta').textContent  = fid + ' · Pelle ' + p.tipo + ' · ' + ings.length + ' ingredienti · Generato oggi';
-  const pill = document.getElementById('form-compat-pill');
-  pill.textContent = fd.compat + '% compatibilità';
-  pill.className = 'compat-pill ' + (fd.compat >= 80 ? 'high' : 'mid');
 
   document.getElementById('formulation-result-block').style.display = 'block';
   const btn = document.getElementById('btn-step4-next');
@@ -1839,12 +2138,16 @@ function showFormulationResult(fid) {
 // ── Step 5: revisione ──
 function saveClinical() {
   wizardData.clinical = {
-    eta:          (document.getElementById('clin-eta')         || {}).value || '',
-    sesso:        (document.getElementById('clin-sesso')       || {}).value || '',
-    fitzpatrick:  (document.getElementById('clin-fitzpatrick') || {}).value || '',
-    acne:         (document.getElementById('clin-acne')        || {}).value || '0',
-    fotoaging:    (document.getElementById('clin-fotoaging')   || {}).value || '0',
-    sensibilita:  (document.getElementById('clin-sensibilita') || {}).value || '',
+    eta:           (document.getElementById('clin-eta')           || {}).value || '',
+    sesso:         (document.getElementById('clin-sesso')         || {}).value || '',
+    fitzpatrick:   (document.getElementById('clin-fitzpatrick')   || {}).value || '',
+    acne:          (document.getElementById('clin-acne')          || {}).value || '0',
+    fotoaging:     (document.getElementById('clin-fotoaging')     || {}).value || '0',
+    sensibilita:   (document.getElementById('clin-sensibilita')   || {}).value || '',
+    rossore:       (document.getElementById('clin-rossore')       || {}).value || '',
+    pigmentazione: (document.getElementById('clin-pigmentazione') || {}).value || '',
+    rugosita:      (document.getElementById('clin-rugosita')      || {}).value || '',
+    pori:          (document.getElementById('clin-pori')          || {}).value || '',
   };
 }
 
@@ -1864,7 +2167,6 @@ function populateReview() {
   setText('rev-elast',     p.elast || '—');
   setText('rev-sens',      p.sens || '—');
   setText('rev-form-name', (wizardData.selectedFid || '—') + ' — ' + (f.name || '—'));
-  setText('rev-compat',    (f.compat || '—') + '%');
   setText('rev-n-ing',     (f.ings || []).length);
   setText('rev-context',   ctx);
 
@@ -1912,9 +2214,9 @@ function saveAndFinish() {
   };
 
   saveToStorage();
-  renderProfileGrids();
+  renderAnalisiGrid();
   showToast('✅ Profilo ' + id + ' salvato · Formulazione ' + fid + ' associata');
-  setTimeout(() => showPage('profili', document.querySelector('[data-page="profili"]')), 1200);
+  setTimeout(() => showPage('analisi', document.querySelector('[data-page="analisi"]')), 1200);
 }
 
 // ══════════════════════════════════════════════
@@ -1935,12 +2237,18 @@ function showToast(msg) {
 document.addEventListener('DOMContentLoaded', () => {
   loadFromStorage();
   document.querySelectorAll('.role-view').forEach(el => el.style.display = 'none');
-  renderProfileGrids();
+  renderAnalisiGrid();
 
   // wizard: reset al primo step quando si va su "nuova analisi"
   document.querySelectorAll('[data-page="nuova-analisi"]').forEach(btn => {
     btn.addEventListener('click', () => wizardGoTo(1));
   });
+
+  // collega le search input ai filtri
+  const analisiSearch = document.getElementById('analisi-search');
+  if (analisiSearch) analisiSearch.addEventListener('input', e => { _analisiSearch = e.target.value; filterAnalisi(null); });
+  const ingSearch = document.getElementById('ing-search');
+  if (ingSearch) ingSearch.addEventListener('input', e => { _ingSearch = e.target.value; filterIngredients(null); });
 });
 </script>
 </body>
