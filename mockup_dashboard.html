@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Cosmeceutica — IIS Stendhal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #3D9A52;
+      --green-d:      #2D7A40;
+      --green-pale:   rgba(61,154,82,0.08);
+      --green-glass:  rgba(61,154,82,0.18);
+      --blue:         #2563A8;
+      --blue-pale:    rgba(37,99,168,0.08);
+      --blue-glass:   rgba(37,99,168,0.18);
+      --purple:       #7B3D8B;
+      --purple-pale:  rgba(123,61,139,0.08);
+      --purple-glass: rgba(123,61,139,0.18);
+      --gold:         #C97B10;
+      --gold-pale:    rgba(201,123,16,0.08);
+      --gold-glass:   rgba(201,123,16,0.18);
+      --glass:        rgba(255,255,255,0.95);
+      --glass-strong: rgba(255,255,255,0.99);
+      --glass-border: rgba(0,0,0,0.08);
+      --text-dark:    #1A1F2E;
+      --text-mid:     #4A5568;
+      --text-light:   #94A3B8;
+      --border:       rgba(0,0,0,0.08);
+      --shadow:       0 2px 12px rgba(0,0,0,0.06);
+      --shadow-lg:    0 8px 32px rgba(0,0,0,0.12);
+      --radius:       14px;
+      --radius-sm:    9px;
+      /* Sidebar */
+      --sidebar-bg:     #FFFFFF;
+      --sidebar-text:   #4A5568;
+      --sidebar-active: rgba(74,25,112,0.10);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text-dark);
+      background: #F3F4F8;
+    }
+    /* Sfondo a sfumature — tenue, quasi bianco */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 900px 700px at 0% 0%,   rgba(61,154,82,0.07)  0%, transparent 60%),
+        radial-gradient(ellipse 700px 600px at 100% 100%,rgba(37,99,168,0.06)  0%, transparent 60%),
+        radial-gradient(ellipse 500px 400px at 100% 0%,  rgba(123,61,139,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse 400px 500px at 0% 100%,  rgba(201,123,16,0.04) 0%, transparent 50%),
+        #F3F4F8;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; }
+    .screen.active { display: flex; }
+    #screen-app.active { display: block; position: relative; z-index: 1; }
+
+    /* ════════════════════ LOGIN ════════════════════ */
+    #screen-login {
+      min-height: 100vh;
+      background: linear-gradient(150deg, #1F0B35 0%, #0E2318 48%, #1C0B30 100%);
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px; padding: 48px 20px;
+      position: relative; overflow: hidden;
+    }
+    #screen-login::before {
+      /* nessun pattern — solo gradienti */
+      display: none;
+    }
+    #screen-login::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 640px 500px at 0%  95%, rgba(61,154,82,0.38)   0%, transparent 60%),
+        radial-gradient(ellipse 560px 460px at 100%  5%, rgba(123,61,139,0.50) 0%, transparent 60%),
+        radial-gradient(ellipse 320px 280px at 55% 50%,  rgba(74,25,112,0.18)  0%, transparent 65%);
+    }
+
+    /* Brand sopra la card — su sfondo scuro */
+    .login-brand {
+      text-align: center;
+      position: relative; z-index: 1;
+    }
+    .login-brand-icon {
+      width: 96px; height: auto;
+      margin: 0 auto 18px;
+      display: block;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.35));
+    }
+    .login-brand h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 56px; font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.40);
+    }
+    .login-brand p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 400;
+      letter-spacing: 0.4px;
+    }
+
+    .login-card {
+      background: var(--glass-strong);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-radius: 20px;
+      padding: 32px 40px 36px;
+      width: 440px;
+      box-shadow: 0 20px 56px rgba(0,0,0,0.30), 0 2px 8px rgba(0,0,0,0.14);
+      border: 1px solid rgba(255,255,255,0.96);
+      position: relative; z-index: 1;
+    }
+    .login-welcome { font-size: 13px; color: var(--text-mid); margin-bottom: 22px; line-height: 1.6; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .form-group input {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid rgba(0,0,0,0.10);
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-family: 'Inter', sans-serif;
+      background: rgba(255,255,255,0.70);
+      backdrop-filter: blur(8px);
+      color: var(--text-dark);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-pale); }
+    .btn-primary {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, var(--green) 0%, var(--green-d) 100%);
+      color: white; border: none; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: opacity .2s, transform .1s; margin-top: 6px;
+      box-shadow: 0 4px 14px rgba(61,154,82,0.35);
+    }
+    .btn-primary:hover { opacity: .92; transform: translateY(-1px); }
+    .login-divider-label {
+      display: flex; align-items: center; gap: 10px;
+      margin: 20px 0 16px; color: var(--text-light); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .6px;
+    }
+    .login-divider-label::before, .login-divider-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .demo-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .demo-btn {
+      padding: 10px 6px; border-radius: var(--radius-sm);
+      border: 1.5px solid rgba(0,0,0,0.09); background: rgba(255,255,255,0.60);
+      font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; text-align: center; transition: all .2s; color: var(--text-mid);
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .demo-btn .demo-btn-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .demo-btn:hover { border-color: var(--green); background: var(--green-pale); color: var(--green-d); }
+    .login-footer { margin-top: 18px; text-align: center; font-size: 12px; color: var(--text-light); }
+    .login-footer a { color: var(--green); text-decoration: none; }
+    .login-gdpr {
+      margin-top: 16px; padding: 9px 14px;
+      background: rgba(61,154,82,0.07); border: 1px solid var(--green-glass);
+      border-radius: var(--radius-sm); font-size: 11px; color: var(--green-d); text-align: center;
+    }
+
+    /* ════════════════════ APP LAYOUT ════════════════════ */
+    .app-layout { display: flex; min-height: 100vh; width: 100%; position: relative; z-index: 1; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 262px; min-height: 100vh;
+      background: #FFFFFF;
+      border-right: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 2px 0 16px rgba(0,0,0,0.06);
+      display: flex; flex-direction: column;
+      position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-header {
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+    .sidebar-school-logo img {
+      width: 100%; max-width: 218px; height: auto; display: block;
+    }
+    .sidebar-product-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px; padding: 4px 10px;
+      background: rgba(74,25,112,0.07);
+      border: 1px solid rgba(74,25,112,0.20);
+      border-radius: 6px;
+    }
+    .sidebar-product-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+    .sidebar-product-tag span { font-size: 11px; font-weight: 600; color: #4A1970; text-transform: uppercase; letter-spacing: .6px; }
+
+    .sidebar-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+      /* #64748B su bianco → contrasto 5.0:1 ✓ WCAG AA */
+      color: #64748B; text-transform: uppercase;
+      padding: 12px 10px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 9px;
+      font-size: 13px; font-weight: 500;
+      /* #4A5568 su bianco → contrasto 7.0:1 ✓ WCAG AA */
+      color: #4A5568;
+      cursor: pointer; transition: all .18s;
+      margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(74,25,112,0.06); color: #4A1970; }
+    .nav-item.active {
+      background: rgba(74,25,112,0.10);
+      /* #3A1560 su rgba(74,25,112,0.10) su bianco → contrasto >7:1 ✓ */
+      color: #3A1560; font-weight: 600;
+      box-shadow: inset 3px 0 0 #7B3D8B;
+    }
+    .nav-item .nav-icon { width: 20px; text-align: center; font-size: 15px; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto; background: var(--purple); color: white;
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    }
+    .sidebar-footer { padding: 14px 10px; border-top: 1px solid rgba(0,0,0,0.07); }
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: rgba(74,25,112,0.05); border: 1px solid rgba(74,25,112,0.15);
+    }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #7B3D8B, #4A1970);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    /* #3A1560 su bianco → contrasto 11:1 ✓ */
+    .user-info h4 { font-size: 12px; color: #1A1F2E; font-weight: 600; }
+    /* #64748B su bianco → contrasto 5.0:1 ✓ */
+    .user-info p { font-size: 11px; color: #64748B; margin-top: 1px; }
+    .user-card .logout-btn { margin-left: auto; color: #94A3B8; cursor: pointer; font-size: 15px; background: none; border: none; transition: color .15s; }
+    .user-card .logout-btn:hover { color: #4A1970; }
+
+    /* ── Main area ── */
+    .main-area { margin-left: 262px; flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 12px 32px; display: flex; align-items: center; gap: 16px;
+      position: sticky; top: 0; z-index: 50; width: 100%;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+    .topbar-title h3 { font-size: 17px; font-weight: 600; color: var(--text-dark); flex: 1; }
+    .topbar-title p { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .topbar-title { flex: 1; }
+
+    /* Role switcher */
+    .role-switcher { display: flex; align-items: center; gap: 6px; padding: 0 14px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+    .role-switcher-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .role-switch-btn {
+      padding: 5px 12px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: rgba(255,255,255,0.60);
+      font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; color: var(--text-mid); transition: all .18s; text-transform: uppercase; letter-spacing: .3px;
+    }
+    .role-switch-btn:hover { border-color: var(--green); color: var(--green-d); }
+    .role-switch-btn.active.admin    { background: var(--green-pale);  border-color: var(--green);  color: var(--green-d); }
+    .role-switch-btn.active.docente  { background: var(--blue-pale);   border-color: var(--blue);   color: #1A4A8A; }
+    .role-switch-btn.active.ricercatore { background: var(--purple-pale); border-color: var(--purple); color: #5C2D6A; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 9px;
+      border: 1.5px solid var(--border); background: rgba(255,255,255,0.60);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px; position: relative; transition: all .18s;
+    }
+    .icon-btn:hover { border-color: var(--green); background: var(--green-pale); }
+    .notif-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); border: 2px solid white; }
+    .btn-new {
+      background: linear-gradient(135deg, var(--green), var(--green-d));
+      color: white; border: none; border-radius: 9px;
+      padding: 8px 16px; font-size: 12px; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      box-shadow: 0 3px 12px rgba(61,154,82,0.30);
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .btn-new:hover { opacity: .9; transform: translateY(-1px); }
+
+    .page-content { padding: 28px 32px; flex: 1; width: 100%; }
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .role-view { display: none; }
+
+    /* ════════════════════ KPI CARDS ════════════════════ */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; margin-bottom: 24px; width: 100%; }
+    .kpi-card {
+      background: #FFFFFF;
+      border-radius: var(--radius); padding: 20px;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-top: 3px solid var(--green);   /* default, sovrascritto sotto */
+      box-shadow: var(--shadow);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    /* Bordo top colorato per posizione — verde/blu/viola/oro */
+    .kpi-grid .kpi-card:nth-child(4n+1) { border-top-color: var(--green);  background: linear-gradient(180deg,rgba(61,154,82,0.04) 0%,#fff 60%); }
+    .kpi-grid .kpi-card:nth-child(4n+2) { border-top-color: var(--blue);   background: linear-gradient(180deg,rgba(37,99,168,0.04) 0%,#fff 60%); }
+    .kpi-grid .kpi-card:nth-child(4n+3) { border-top-color: var(--purple); background: linear-gradient(180deg,rgba(123,61,139,0.04) 0%,#fff 60%); }
+    .kpi-grid .kpi-card:nth-child(4n+4) { border-top-color: var(--gold);   background: linear-gradient(180deg,rgba(201,123,16,0.04) 0%,#fff 60%); }
+    .kpi-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+    .kpi-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .kpi-icon.green  { background: var(--green-pale);  }
+    .kpi-icon.blue   { background: var(--blue-pale);   }
+    .kpi-icon.purple { background: var(--purple-pale); }
+    .kpi-icon.gold   { background: var(--gold-pale);   }
+    .kpi-trend { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+    .kpi-trend.up      { color: #1F6B36; background: rgba(61,154,82,0.12); }
+    .kpi-trend.down    { color: #A83030; background: rgba(168,48,48,0.10); }
+    .kpi-trend.neutral { color: var(--text-light); background: rgba(0,0,0,0.05); }
+    .kpi-value { font-size: 28px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+    .kpi-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+
+    /* ════════════════════ CARDS GENERIC ════════════════════ */
+    .card {
+      background: #FFFFFF;
+      border-radius: var(--radius); border: 1px solid rgba(0,0,0,0.07);
+      box-shadow: var(--shadow);
+    }
+    .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 24px; width: 100%; }
+    .card-header {
+      padding: 16px 20px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header h4 { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+    .card-header .see-all { font-size: 12px; color: var(--green); cursor: pointer; font-weight: 500; }
+    .card-body { padding: 0; }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { padding: 9px 18px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text-light); background: rgba(0,0,0,0.02); }
+    .data-table td { padding: 12px 18px; font-size: 13px; border-top: 1px solid rgba(0,0,0,0.05); color: var(--text-dark); }
+    .data-table tr:hover td { background: var(--green-pale); }
+    .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .status-badge.completata { background: rgba(61,154,82,0.12); color: #1F6B36; }
+    .status-badge.in-corso   { background: var(--gold-pale); color: #7A4A08; }
+    .status-badge.bozza      { background: rgba(0,0,0,0.06); color: var(--text-mid); }
+
+    /* ── Activity ── */
+    .activity-item { display: flex; align-items: flex-start; gap: 11px; padding: 13px 18px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .activity-dot.green  { background: var(--green); }
+    .activity-dot.blue   { background: var(--blue); }
+    .activity-dot.gold   { background: var(--gold); }
+    .activity-text { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+    .activity-text strong { color: var(--text-dark); }
+    .activity-time { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+    /* ── Status panel ── */
+    .status-grid { padding: 14px 18px; display: flex; flex-direction: column; gap: 11px; }
+    .status-row { display: flex; align-items: center; gap: 9px; }
+    .status-indicator { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .status-indicator.green  { background: #3DBB6A; box-shadow: 0 0 0 3px rgba(61,187,106,.18); }
+    .status-indicator.yellow { background: var(--gold); box-shadow: 0 0 0 3px rgba(201,123,16,.18); }
+    .status-label { font-size: 13px; color: var(--text-mid); flex: 1; }
+    .status-value { font-size: 12px; font-weight: 500; color: var(--text-dark); }
+
+    /* ════════════════════ PROFILI ════════════════════ */
+    .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .search-input {
+      flex: 1; padding: 9px 14px;
+      border: 1.5px solid rgba(0,0,0,0.09); border-radius: 9px;
+      font-size: 13px; font-family: 'Inter', sans-serif;
+      background: var(--glass-strong); backdrop-filter: blur(8px);
+      color: var(--text-dark);
+    }
+    .search-input:focus { outline: none; border-color: var(--green); }
+    .filter-chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--glass-strong); font-size: 12px; font-weight: 500; cursor: pointer; transition: all .18s; color: var(--text-mid); }
+    .filter-chip.active, .filter-chip:hover { border-color: var(--green); background: var(--green-pale); color: var(--green-d); }
+
+    .profiles-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; width: 100%; }
+    .profile-card {
+      background: #FFFFFF;
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,0.07);
+      border-left: 3px solid var(--green);
+      box-shadow: var(--shadow); padding: 18px; cursor: pointer; transition: all .2s;
+    }
+    .profile-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-left-color: var(--green-d); }
+    .profile-top { display: flex; align-items: center; gap: 11px; margin-bottom: 13px; }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--green-pale), var(--blue-pale)); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .profile-id { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+    .profile-date { font-size: 11px; color: var(--text-light); margin-top: 1px; }
+    .profile-params { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .param-item { background: rgba(255,255,255,0.60); border-radius: 7px; padding: 7px 9px; border: 1px solid rgba(0,0,0,0.05); }
+    .param-label { font-size: 9px; color: var(--text-light); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+    .param-value { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-top: 2px; }
+    .param-bar { height: 3px; background: rgba(0,0,0,0.08); border-radius: 2px; margin-top: 4px; }
+    .param-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--green), var(--blue)); }
+    .profile-footer { margin-top: 12px; padding-top: 11px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .profile-footer .tag { font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--green-pale); color: var(--green-d); font-weight: 600; border: 1px solid var(--green-glass); }
+
+    /* ════════════════════ FORMULAZIONI ════════════════════ */
+    .formulations-list { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .formulation-card {
+      background: #FFFFFF;
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,0.07);
+      border-left: 3px solid var(--blue);
+      box-shadow: var(--shadow); overflow: hidden; cursor: pointer; transition: all .2s;
+    }
+    .formulation-card:hover { box-shadow: var(--shadow-lg); border-left-color: #1a4d8f; }
+    .formulation-card-header { padding: 15px 18px; display: flex; align-items: center; gap: 13px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .formulation-num { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, var(--blue), #1a4d8f); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+    .formulation-title { flex: 1; }
+    .formulation-title h5 { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+    .formulation-title p { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .formulation-card-body { padding: 13px 18px; }
+    .ingredients-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .ingredient-chip { padding: 3px 9px; border-radius: 20px; font-size: 11px; background: rgba(255,255,255,0.70); border: 1px solid rgba(0,0,0,0.08); color: var(--text-mid); }
+    .ingredient-chip.highlight { background: var(--green-pale); border-color: var(--green-glass); color: var(--green-d); font-weight: 500; }
+    .compat-bar-row { display: flex; align-items: center; gap: 10px; }
+    .compat-label { font-size: 11px; color: var(--text-light); width: 120px; }
+    .compat-bar { flex: 1; height: 5px; background: rgba(0,0,0,0.08); border-radius: 3px; }
+    .compat-fill { height: 100%; border-radius: 3px; }
+    .compat-fill.high { background: linear-gradient(90deg, var(--green), #7AD4A0); }
+    .compat-fill.mid  { background: linear-gradient(90deg, var(--gold), #E5B96A); }
+    .compat-pct { font-size: 11px; font-weight: 700; color: var(--text-dark); width: 36px; text-align: right; }
+
+    /* ════════════════════ DISCLAIMER ════════════════════ */
+    .disclaimer-banner {
+      background: rgba(201,123,16,0.08); border: 1px solid rgba(201,123,16,0.20);
+      border-radius: 9px; padding: 11px 15px; font-size: 12px; color: #7A4A08;
+      margin-bottom: 20px; display: flex; gap: 9px; align-items: flex-start;
+    }
+    .disclaimer-banner .disc-icon { font-size: 15px; flex-shrink: 0; }
+
+    /* ════════════════════ WIZARD ANALISI ════════════════════ */
+    .wizard-steps { display: flex; margin-bottom: 28px; }
+    .wizard-step { flex: 1; text-align: center; position: relative; padding: 12px 8px; }
+    .wizard-step::after { content: ''; position: absolute; top: 22px; left: 50%; right: -50%; height: 2px; background: rgba(0,0,0,0.08); z-index: 0; }
+    .wizard-step:last-child::after { display: none; }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); background: var(--glass-strong); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--text-light); margin: 0 auto 5px; position: relative; z-index: 1; }
+    .wizard-step.done   .step-num { background: var(--green); border-color: var(--green); color: white; }
+    .wizard-step.active .step-num { background: white; border-color: var(--green); color: var(--green); box-shadow: 0 0 0 4px var(--green-pale); }
+    .step-label { font-size: 11px; color: var(--text-light); }
+    .wizard-step.active .step-label { color: var(--green-d); font-weight: 600; }
+    .wizard-card {
+      background: #FFFFFF;
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,0.07);
+      border-left: 3px solid var(--green);
+      box-shadow: var(--shadow); padding: 26px; max-width: 680px;
+    }
+    .wizard-card h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; margin-bottom: 6px; color: var(--text-dark); }
+    .wizard-card p.desc { font-size: 13px; color: var(--text-mid); margin-bottom: 22px; line-height: 1.6; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group-inner label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--text-mid); display: block; margin-bottom: 5px; }
+    .form-group-inner input, .form-group-inner select { width: 100%; padding: 9px 12px; border: 1.5px solid rgba(0,0,0,0.09); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; background: rgba(255,255,255,0.65); color: var(--text-dark); }
+    .data-source-card { border: 2px solid rgba(0,0,0,0.09); border-radius: 10px; padding: 14px; cursor: pointer; transition: all .18s; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.55); }
+    .data-source-card.selected { border-color: var(--green); background: var(--green-pale); }
+    .source-icon { font-size: 22px; }
+    .source-info h5 { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+    .source-info p { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
+    .wizard-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-secondary { padding: 9px 18px; border-radius: 9px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.65); font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; color: var(--text-mid); transition: all .18s; }
+    .btn-secondary:hover { border-color: var(--green); color: var(--green-d); }
+
+    /* ════════════════════ INGREDIENTI ════════════════════ */
+    .ingredients-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; width: 100%; }
+    .ingredient-card {
+      background: #FFFFFF;
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,0.07);
+      border-top: 3px solid var(--gold);
+      box-shadow: var(--shadow); padding: 16px; text-align: center; transition: all .2s; cursor: pointer;
+    }
+    .ingredient-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-top-color: #A86000; }
+    .ing-emoji { font-size: 30px; margin-bottom: 8px; }
+    .ing-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+    .ing-type { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .ing-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; }
+    .ing-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: var(--green-pale); color: var(--green-d); border: 1px solid var(--green-glass); font-weight: 500; }
+
+    /* ════════════════════ UTENTI ════════════════════ */
+    .users-table-wrap { background: #FFFFFF; border-radius: var(--radius); border: 1px solid rgba(0,0,0,0.07); border-left: 3px solid var(--purple); box-shadow: var(--shadow); overflow: hidden; }
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .role-badge.admin      { background: var(--green-pale);  color: var(--green-d); }
+    .role-badge.ricercatore{ background: var(--purple-pale); color: #5C2D6A; }
+    .role-badge.docente    { background: var(--blue-pale);   color: #1A4A8A; }
+
+    /* ════════════════════ CONFIGURAZIONE ════════════════════ */
+    .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .config-section-card { background: #FFFFFF; border-radius: var(--radius); border: 1px solid rgba(0,0,0,0.07); border-top: 3px solid var(--blue); box-shadow: var(--shadow); }
+    /* 4 card config: blu(API) · verde(GDPR) · viola(AI) · oro(Istituto) */
+    .config-grid .config-section-card:nth-child(1) { border-top-color: var(--blue);   background: linear-gradient(180deg,rgba(37,99,168,0.03) 0%,#fff 50%); }
+    .config-grid .config-section-card:nth-child(2) { border-top-color: var(--green);  background: linear-gradient(180deg,rgba(61,154,82,0.03) 0%,#fff 50%); }
+    .config-grid .config-section-card:nth-child(3) { border-top-color: var(--purple); background: linear-gradient(180deg,rgba(123,61,139,0.03) 0%,#fff 50%); }
+    .config-grid .config-section-card:nth-child(4) { border-top-color: var(--gold);   background: linear-gradient(180deg,rgba(201,123,16,0.03) 0%,#fff 50%); }
+    .config-row { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .config-row:last-child { border-bottom: none; }
+    .config-row-info h5 { font-size: 13px; font-weight: 500; color: var(--text-dark); }
+    .config-row-info p  { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .toggle { width: 38px; height: 20px; background: rgba(0,0,0,0.12); border-radius: 10px; position: relative; cursor: pointer; transition: background .2s; }
+    .toggle.on { background: var(--green); }
+    .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle.on::after { left: 20px; }
+    .api-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-mid); }
+    .api-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .api-dot.ok   { background: #3DBB6A; }
+    .api-dot.warn { background: var(--gold); }
+
+    /* ════════════════════ PAGE INTRO ════════════════════ */
+    .page-intro { margin-bottom: 22px; }
+    .page-intro h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--text-dark); }
+    .page-intro p  { font-size: 13px; color: var(--text-mid); margin-top: 4px; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+
+  /* ════ WIZARD STEPS 2-5 ════ */
+  .wizard-step-content { display: none; }
+  .wizard-step-content.active { display: block; }
+
+  .sensor-acquisition { display: flex; flex-direction: column; gap: 18px; margin: 22px 0; }
+  .sensor-row { background: rgba(255,255,255,0.55); border: 1.5px solid rgba(0,0,0,0.07); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; gap: 16px; transition: border-color .3s; }
+  .sensor-row.done { border-color: var(--green); background: var(--green-pale); }
+  .sensor-icon { font-size: 28px; width: 44px; text-align: center; }
+  .sensor-info { flex: 1; }
+  .sensor-name { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+  .sensor-desc { font-size: 11px; color: var(--text-light); }
+  .sensor-progress { width: 160px; }
+  .sensor-bar-wrap { background: rgba(0,0,0,0.07); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 4px; }
+  .sensor-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--green), var(--green-d)); width: 0%; transition: width .05s linear; }
+  .sensor-value { font-size: 12px; font-weight: 600; color: var(--green-d); text-align: right; }
+  .sensor-status { font-size: 18px; width: 28px; text-align: center; }
+
+  .ai-processing { background: rgba(123,61,139,0.06); border: 1.5px solid rgba(123,61,139,0.15); border-radius: var(--radius); padding: 22px 24px; margin: 22px 0; }
+  .ai-processing h5 { font-size: 13px; font-weight: 600; color: var(--purple); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .ai-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(123,61,139,0.3); border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-stream { font-size: 12px; color: var(--text-mid); line-height: 1.8; font-family: 'Inter', monospace; min-height: 80px; }
+  .ai-stream-cursor { display: inline-block; width: 2px; height: 13px; background: var(--purple); animation: blink .8s step-end infinite; vertical-align: text-bottom; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .profile-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  .profile-summary-card { background: rgba(255,255,255,0.55); border: 1.5px solid rgba(0,0,0,0.07); border-radius: var(--radius); padding: 16px 18px; }
+  .profile-summary-card .pscard-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-light); margin-bottom: 4px; }
+  .profile-summary-card .pscard-value { font-size: 22px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+  .profile-summary-card .pscard-sub { font-size: 11px; color: var(--text-mid); margin-top: 4px; }
+  .profile-bar-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .profile-bar-track { flex: 1; background: rgba(0,0,0,0.07); border-radius: 99px; height: 6px; overflow: hidden; }
+  .profile-bar-track .fill { height: 100%; border-radius: 99px; }
+  .fill-green { background: linear-gradient(90deg, var(--green), var(--green-d)); }
+  .fill-blue  { background: linear-gradient(90deg, var(--blue), #1a4d8f); }
+  .fill-gold  { background: linear-gradient(90deg, var(--gold), #a85f00); }
+  .fill-purple{ background: linear-gradient(90deg, var(--purple), #5e2e6e); }
+
+  .formulation-result { background: rgba(255,255,255,0.60); border: 1.5px solid rgba(61,154,82,0.20); border-radius: var(--radius); padding: 20px 22px; margin: 20px 0; }
+  .formulation-result h5 { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+  .formulation-result .form-meta { font-size: 11px; color: var(--text-light); margin-bottom: 16px; }
+  .ingredients-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ingredients-table th { text-align: left; font-weight: 600; color: var(--text-mid); padding: 6px 10px; border-bottom: 1.5px solid rgba(0,0,0,0.07); font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+  .ingredients-table td { padding: 8px 10px; border-bottom: 1px solid rgba(0,0,0,0.04); color: var(--text-dark); }
+  .ingredients-table tr:last-child td { border-bottom: none; }
+  .ing-highlight td:first-child { color: var(--green-d); font-weight: 600; }
+  .compat-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .compat-pill.high { background: var(--green-pale); color: var(--green-d); }
+  .compat-pill.mid  { background: var(--gold-pale);  color: var(--gold); }
+
+  .review-section { background: rgba(255,255,255,0.55); border: 1.5px solid rgba(0,0,0,0.07); border-radius: var(--radius); padding: 18px 20px; margin: 16px 0; }
+  .review-section h5 { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .review-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; }
+  .review-row:last-child { border-bottom: none; }
+  .review-key { color: var(--text-mid); }
+  .review-val { font-weight: 600; color: var(--text-dark); }
+  .export-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .btn-export { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid; transition: all .2s; font-family: 'Inter', sans-serif; }
+  .btn-export-pdf { background: linear-gradient(135deg,#2563A8,#1a4d8f); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(37,99,168,0.25); }
+  .btn-export-pdf:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-export-csv { background: white; color: var(--green-d); border-color: var(--green); }
+  .btn-export-csv:hover { background: var(--green-pale); }
+
+  /* ════ PAGINA DETTAGLIO PROFILO ════ */
+  .detail-back { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--green-d); cursor: pointer; margin-bottom: 20px; width: fit-content; }
+  .detail-back:hover { opacity: .75; }
+  .detail-hero { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-left: 3px solid var(--green); border-radius: var(--radius); padding: 24px 28px; display: flex; align-items: flex-start; gap: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .detail-avatar { width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, var(--green-pale), rgba(61,154,82,0.2)); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+  .detail-id-block h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+  .detail-id-block p { font-size: 13px; color: var(--text-mid); }
+  .detail-badges { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .detail-badge { padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  .badge-green { background: var(--green-pale); color: var(--green-d); border: 1px solid var(--green-glass); }
+  .badge-blue  { background: var(--blue-pale);  color: var(--blue); border: 1px solid rgba(37,99,168,0.15); }
+  .badge-gold  { background: var(--gold-pale);  color: var(--gold); border: 1px solid rgba(201,123,16,0.15); }
+
+  .detail-params-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .detail-param-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-top: 3px solid var(--green); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .detail-params-grid .detail-param-card:nth-child(1) { border-top-color: var(--blue); }
+  .detail-params-grid .detail-param-card:nth-child(2) { border-top-color: var(--gold); }
+  .detail-params-grid .detail-param-card:nth-child(3) { border-top-color: var(--purple); }
+  .detail-params-grid .detail-param-card:nth-child(4) { border-top-color: var(--green); }
+  .detail-param-card .dpc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-light); margin-bottom: 6px; }
+  .detail-param-card .dpc-value { font-size: 26px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+  .detail-param-card .dpc-unit { font-size: 13px; font-weight: 400; color: var(--text-mid); }
+  .detail-param-card .dpc-bar { height: 5px; border-radius: 99px; margin-top: 10px; overflow: hidden; background: rgba(0,0,0,0.07); }
+  .detail-param-card .dpc-bar-fill { height: 100%; border-radius: 99px; }
+
+  .detail-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .detail-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow); }
+  .detail-two-col .detail-card:nth-child(1) { border-left: 3px solid var(--green); }
+  .detail-two-col .detail-card:nth-child(2) { border-left: 3px solid var(--blue); }
+  .detail-card h4 { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row-label { color: var(--text-mid); }
+  .detail-row-value { font-weight: 600; color: var(--text-dark); }
+
+  .assoc-formulation { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  .assoc-formulation:last-child { border-bottom: none; }
+  .assoc-form-num { width: 32px; height: 32px; border-radius: 50%; background: var(--green-pale); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--green-d); flex-shrink: 0; }
+  .assoc-form-info { flex: 1; }
+  .assoc-form-info h6 { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 2px; }
+  .assoc-form-info p { font-size: 11px; color: var(--text-light); }
+  .assoc-form-action { font-size: 12px; color: var(--green); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .assoc-form-action:hover { opacity: .75; }
+
+  .btn-generate { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; background: linear-gradient(135deg, var(--purple) 0%, #5e2e6e 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity .2s, transform .1s; box-shadow: 0 4px 14px rgba(123,61,139,0.30); margin-top: 16px; }
+  .btn-generate:hover { opacity: .90; transform: translateY(-1px); }
+
+  /* ════ SUCCESS TOAST ════ */
+  .toast { position: fixed; bottom: 28px; right: 28px; z-index: 9999; background: #1a3a22; color: white; padding: 14px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 10px; transform: translateY(80px); opacity: 0; transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .25s; pointer-events: none; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ LOGIN ════════════════════ -->
+<div id="screen-login" class="screen active">
+
+  <!-- Brand: sopra la card, su sfondo scuro → titolo hero -->
+  <div class="login-brand">
+    <img class="login-brand-icon"
+         src="Logo_03.png"
+         alt="IIS Stendhal - Calamatta" />
+    <h1>AI Cosmeceutica</h1>
+    <p>Istituto Superiore Stendhal · Calamatta · Civitavecchia</p>
+  </div>
+
+  <!-- Card: solo il form -->
+  <div class="login-card">
+    <p class="login-welcome">Accedi con le credenziali istituzionali per iniziare a lavorare con i profili dermatologici e le formulazioni personalizzate.</p>
+    <div class="form-group">
+      <label>Email istituzionale</label>
+      <input type="email" placeholder="nome@stendhal-calamatta.edu.it" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" placeholder="••••••••" />
+    </div>
+    <button class="btn-primary" onclick="goToApp('admin')">Accedi</button>
+    <div class="login-footer"><a href="#">Password dimenticata?</a></div>
+    <div class="login-divider-label">oppure accesso rapido demo</div>
+    <div class="demo-buttons">
+      <button class="demo-btn" onclick="goToApp('admin')">
+        <span class="demo-btn-icon">🔧</span>Admin
+      </button>
+      <button class="demo-btn" onclick="goToApp('docente')">
+        <span class="demo-btn-icon">👩‍🏫</span>Docente
+      </button>
+      <button class="demo-btn" onclick="goToApp('ricercatore')">
+        <span class="demo-btn-icon">🎓</span>Ricercatore
+      </button>
+    </div>
+    <div class="login-gdpr">🔒 Dati sanitari protetti — GDPR compliant · AES-256</div>
+  </div>
+</div>
+
+<!-- ════════════════════ APP ════════════════════ -->
+<div id="screen-app" class="screen">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-school-logo">
+          <img src="Logo_02.png" alt="IIS Stendhal - Calamatta" />
+        </div>
+        <div class="sidebar-product-tag">
+          <div class="dot"></div>
+          <span>AI Cosmeceutica</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principale</div>
+        <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)">
+          <span class="nav-icon">🏠</span> Dashboard
+        </button>
+        <button class="nav-item" data-page="nuova-analisi" onclick="showPage('nuova-analisi',this)">
+          <span class="nav-icon">➕</span> Nuova Analisi
+        </button>
+        <div class="nav-section-label">Laboratorio</div>
+        <button class="nav-item" id="nav-profili" data-page="profili" onclick="showPage('profili',this)">
+          <span class="nav-icon">🧬</span> <span id="nav-profili-label">Profili Pelle</span>
+        </button>
+        <button class="nav-item" id="nav-formulazioni" data-page="formulazioni" onclick="showPage('formulazioni',this)">
+          <span class="nav-icon">🧪</span> <span id="nav-formulazioni-label">Formulazioni</span>
+          <span class="nav-badge">3</span>
+        </button>
+        <button class="nav-item" data-page="ingredienti" onclick="showPage('ingredienti',this)">
+          <span class="nav-icon">🌿</span> Catalogo Ingredienti
+        </button>
+        <div class="nav-section-label" id="nav-admin-section" data-roles="admin">Amministrazione</div>
+        <button class="nav-item" data-page="utenti" data-roles="admin" onclick="showPage('utenti',this)">
+          <span class="nav-icon">👥</span> Gestione Utenti
+        </button>
+        <button class="nav-item" data-page="configurazione" data-roles="admin" onclick="showPage('configurazione',this)">
+          <span class="nav-icon">⚙️</span> Configurazione
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="user-initials">MA</div>
+          <div class="user-info">
+            <h4 id="user-name">M. Alberti</h4>
+            <p id="user-role-label">Amministratore</p>
+          </div>
+          <button class="logout-btn" onclick="goToLogin()" title="Esci">↩</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-area">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h3 id="page-title">Dashboard</h3>
+          <p id="page-subtitle">Panoramica laboratorio</p>
+        </div>
+        <div class="role-switcher">
+          <span class="role-switcher-label">Vista</span>
+          <button class="role-switch-btn admin active" data-role="admin" onclick="applyRole('admin')">🔧 Admin</button>
+          <button class="role-switch-btn docente" data-role="docente" onclick="applyRole('docente')">👩‍🏫 Docente</button>
+          <button class="role-switch-btn ricercatore" data-role="ricercatore" onclick="applyRole('ricercatore')">🎓 Ricercatore</button>
+        </div>
+        <div class="topbar-actions">
+          <div class="icon-btn">🔔<span class="notif-dot"></span></div>
+          <div class="icon-btn">❓</div>
+          <button class="btn-new" onclick="showPage('nuova-analisi',null)">+ Nuova analisi</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- ══ DASHBOARD ══ -->
+        <div id="page-dashboard" class="page-section active">
+          <div class="page-intro">
+            <h3 id="dash-welcome">Benvenuto nel laboratorio</h3>
+            <p id="dash-sub">Panoramica dell'attività di oggi e stato del sistema.</p>
+          </div>
+
+          <!-- KPI Admin -->
+          <div class="kpi-grid role-view role-admin">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon green">🧬</div><span class="kpi-trend up">+12%</span></div><div class="kpi-value">47</div><div class="kpi-label">Profili pelle totali</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon blue">🧪</div><span class="kpi-trend up">+8%</span></div><div class="kpi-value">124</div><div class="kpi-label">Formulazioni generate</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon purple">📊</div><span class="kpi-trend down">-2%</span></div><div class="kpi-value">91%</div><div class="kpi-label">Qualità media dati</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon gold">👥</div><span class="kpi-trend up">+3</span></div><div class="kpi-value">8</div><div class="kpi-label">Utenti attivi oggi</div></div>
+          </div>
+          <!-- KPI Docente -->
+          <div class="kpi-grid role-view role-docente">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon green">🧬</div><span class="kpi-trend up">+10%</span></div><div class="kpi-value">38</div><div class="kpi-label">Profili dei ricercatori</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon blue">🧪</div><span class="kpi-trend up">+6%</span></div><div class="kpi-value">97</div><div class="kpi-label">Formulazioni generate</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon purple">📊</div><span class="kpi-trend down">-1%</span></div><div class="kpi-value">89%</div><div class="kpi-label">Qualità media dati</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon gold">🎓</div><span class="kpi-trend up">+2</span></div><div class="kpi-value">12</div><div class="kpi-label">Ricercatori attivi</div></div>
+          </div>
+          <!-- KPI Ricercatore -->
+          <div class="kpi-grid role-view role-ricercatore">
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon green">🧬</div><span class="kpi-trend neutral">—</span></div><div class="kpi-value">3</div><div class="kpi-label">I miei profili</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon blue">🧪</div><span class="kpi-trend neutral">—</span></div><div class="kpi-value">5</div><div class="kpi-label">Le mie formulazioni</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon purple">📊</div><span class="kpi-trend neutral">—</span></div><div class="kpi-value">94%</div><div class="kpi-label">Qualità dei miei dati</div></div>
+            <div class="kpi-card"><div class="kpi-header"><div class="kpi-icon gold">✅</div><span class="kpi-trend neutral">—</span></div><div class="kpi-value">4</div><div class="kpi-label">Formulazioni completate</div></div>
+          </div>
+
+          <div class="content-grid">
+            <div class="card">
+              <div class="card-header"><h4>Analisi recenti</h4><a class="see-all" onclick="showPage('profili',null)">Vedi tutte →</a></div>
+              <div class="card-body">
+                <table class="data-table">
+                  <thead><tr><th>ID Profilo</th><th>Tipo pelle</th><th>Idratazione</th><th>Stato</th><th>Data</th></tr></thead>
+                  <tbody class="role-view role-admin role-docente">
+                    <tr><td><strong>PRF-0047</strong></td><td>Mista</td><td>68%</td><td><span class="status-badge completata">Completata</span></td><td>26/05/2026</td></tr>
+                    <tr><td><strong>PRF-0046</strong></td><td>Grassa</td><td>52%</td><td><span class="status-badge in-corso">In corso</span></td><td>25/05/2026</td></tr>
+                    <tr><td><strong>PRF-0045</strong></td><td>Secca</td><td>41%</td><td><span class="status-badge completata">Completata</span></td><td>25/05/2026</td></tr>
+                    <tr><td><strong>PRF-0044</strong></td><td>Sensibile</td><td>75%</td><td><span class="status-badge completata">Completata</span></td><td>24/05/2026</td></tr>
+                    <tr><td><strong>PRF-0043</strong></td><td>Normale</td><td>82%</td><td><span class="status-badge bozza">Bozza</span></td><td>24/05/2026</td></tr>
+                  </tbody>
+                  <tbody class="role-view role-ricercatore">
+                    <tr><td><strong>PRF-0045</strong></td><td>Secca</td><td>41%</td><td><span class="status-badge completata">Completata</span></td><td>25/05/2026</td></tr>
+                    <tr><td><strong>PRF-0043</strong></td><td>Normale</td><td>82%</td><td><span class="status-badge bozza">Bozza</span></td><td>24/05/2026</td></tr>
+                    <tr><td><strong>PRF-0041</strong></td><td>Mista</td><td>63%</td><td><span class="status-badge completata">Completata</span></td><td>20/05/2026</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div class="card role-view role-admin">
+                <div class="card-header"><h4>Attività recente</h4></div>
+                <div class="activity-item"><div class="activity-dot green"></div><div><div class="activity-text"><strong>Formulazione generata</strong> per PRF-0047</div><div class="activity-time">Oggi, 11:32</div></div></div>
+                <div class="activity-item"><div class="activity-dot blue"></div><div><div class="activity-text">Profilo <strong>PRF-0046</strong> acquisito da API</div><div class="activity-time">Oggi, 10:15</div></div></div>
+                <div class="activity-item"><div class="activity-dot gold"></div><div><div class="activity-text">Export PDF <strong>FORM-0028</strong> — G. Rossi</div><div class="activity-time">Ieri, 16:44</div></div></div>
+                <div class="activity-item"><div class="activity-dot green"></div><div><div class="activity-text">Nuovo utente aggiunto: <strong>G. Rossi</strong></div><div class="activity-time">Ieri, 09:00</div></div></div>
+              </div>
+              <div class="card role-view role-docente">
+                <div class="card-header"><h4>Attività recente</h4></div>
+                <div class="activity-item"><div class="activity-dot green"></div><div><div class="activity-text"><strong>Formulazione generata</strong> per PRF-0047</div><div class="activity-time">Oggi, 11:32</div></div></div>
+                <div class="activity-item"><div class="activity-dot blue"></div><div><div class="activity-text">Profilo <strong>PRF-0046</strong> acquisito da API</div><div class="activity-time">Oggi, 10:15</div></div></div>
+                <div class="activity-item"><div class="activity-dot gold"></div><div><div class="activity-text">Export PDF <strong>FORM-0028</strong></div><div class="activity-time">Ieri, 16:44</div></div></div>
+                <div class="activity-item"><div class="activity-dot blue"></div><div><div class="activity-text">Profilo <strong>PRF-0044</strong> completato da F. Conti</div><div class="activity-time">Ieri, 14:10</div></div></div>
+              </div>
+              <div class="card role-view role-ricercatore">
+                <div class="card-header"><h4>Le mie attività</h4></div>
+                <div class="activity-item"><div class="activity-dot green"></div><div><div class="activity-text"><strong>Formulazione generata</strong> per PRF-0045</div><div class="activity-time">Oggi, 09:50</div></div></div>
+                <div class="activity-item"><div class="activity-dot blue"></div><div><div class="activity-text">Profilo <strong>PRF-0043</strong> salvato come bozza</div><div class="activity-time">Ieri, 15:20</div></div></div>
+                <div class="activity-item"><div class="activity-dot gold"></div><div><div class="activity-text">Export PDF <strong>FORM-0024</strong></div><div class="activity-time">Ieri, 11:05</div></div></div>
+              </div>
+              <div class="card">
+                <div class="card-header"><h4>Stato sistema</h4></div>
+                <div class="status-grid">
+                  <div class="status-row"><div class="status-indicator green"></div><span class="status-label">API Sensori</span><span class="status-value">Connessa</span></div>
+                  <div class="status-row"><div class="status-indicator green"></div><span class="status-label">Motore AI</span><span class="status-value">Operativo</span></div>
+                  <div class="status-row"><div class="status-indicator yellow"></div><span class="status-label">Database</span><span class="status-value">Lento (23ms)</span></div>
+                  <div class="status-row"><div class="status-indicator green"></div><span class="status-label">Cifratura GDPR</span><span class="status-value">Attiva</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ NUOVA ANALISI ══ -->
+        <div id="page-nuova-analisi" class="page-section">
+          <div class="page-intro"><h3>Nuova Analisi</h3><p>Acquisizione dati e avvio del motore di raccomandazione.</p></div>
+          <div class="wizard-steps" id="wizard-steps-bar">
+            <div class="wizard-step active" id="wstep-1"><div class="step-num">1</div><div class="step-label">Sorgente dati</div></div>
+            <div class="wizard-step" id="wstep-2"><div class="step-num">2</div><div class="step-label">Acquisizione</div></div>
+            <div class="wizard-step" id="wstep-3"><div class="step-num">3</div><div class="step-label">Profilo pelle</div></div>
+            <div class="wizard-step" id="wstep-4"><div class="step-num">4</div><div class="step-label">Formulazione AI</div></div>
+            <div class="wizard-step" id="wstep-5"><div class="step-num">5</div><div class="step-label">Revisione</div></div>
+          </div>
+
+          <!-- STEP 1 — Sorgente dati -->
+          <div class="wizard-card wizard-step-content active" id="wizard-content-1">
+            <h4>Seleziona la sorgente dati</h4>
+            <p class="desc">I dati dermatologici vengono acquisiti tramite API o database configurati dall'amministratore. Seleziona la fonte per questa analisi.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+              <div class="data-source-card selected" onclick="toggleSource(this)"><div class="source-icon">📡</div><div class="source-info"><h5>API Sensori attiva</h5><p>Connessione diretta ai sensori. Dati in tempo reale.</p></div></div>
+              <div class="data-source-card" onclick="toggleSource(this)"><div class="source-icon">🗄️</div><div class="source-info"><h5>Database esistente</h5><p>Richiama un profilo già salvato nel sistema.</p></div></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group-inner"><label>Codice sessione (opzionale)</label><input type="text" id="session-code" placeholder="es. LAB-2026-05-26" /></div>
+              <div class="form-group-inner"><label>Contesto</label><select id="session-context"><option>Laboratorio didattico</option><option>Ricerca</option><option>Demo</option></select></div>
+            </div>
+            <h5 style="margin:18px 0 10px;font-size:13px;font-weight:700;color:var(--text-dark);letter-spacing:.03em;">DATI ANAGRAFICI E CLINICI</h5>
+            <div class="form-row">
+              <div class="form-group-inner"><label>Età (anni)</label><input type="number" id="clin-eta" placeholder="es. 35" min="10" max="99" onchange="saveClinical()" /></div>
+              <div class="form-group-inner"><label>Sesso</label><select id="clin-sesso" onchange="saveClinical()"><option value="">—</option><option value="M">M</option><option value="F">F</option></select></div>
+              <div class="form-group-inner"><label>Fototipo Fitzpatrick</label><select id="clin-fitzpatrick" onchange="saveClinical()"><option value="">—</option><option value="I">I — Molto chiara</option><option value="II">II — Chiara</option><option value="III">III — Media</option><option value="IV">IV — Olivastra</option><option value="V">V — Scura</option><option value="VI">VI — Molto scura</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group-inner"><label>Acne grading (0–3)</label><select id="clin-acne" onchange="saveClinical()"><option value="0">0 — Assente</option><option value="1">1 — Lieve</option><option value="2">2 — Moderato</option><option value="3">3 — Severo</option></select></div>
+              <div class="form-group-inner"><label>Fotoaging grading (0–3)</label><select id="clin-fotoaging" onchange="saveClinical()"><option value="0">0 — Assente</option><option value="1">1 — Lieve</option><option value="2">2 — Moderato</option><option value="3">3 — Severo</option></select></div>
+              <div class="form-group-inner"><label>Score sensibilità (0.0–1.0)</label><input type="number" id="clin-sensibilita" placeholder="es. 0.30" min="0" max="1" step="0.01" onchange="saveClinical()" /></div>
+            </div>
+            <div class="disclaimer-banner"><span class="disc-icon">⚠️</span><div>Le formulazioni hanno <strong>valore didattico e indicativo</strong>. Non sostituiscono la validazione di un cosmetologo qualificato.</div></div>
+            <div class="wizard-actions">
+              <button class="btn-secondary" onclick="showPage('dashboard',null)">← Annulla</button>
+              <button class="btn-primary" style="width:auto;padding:10px 26px;" onclick="wizardGoTo(2)">Avvia acquisizione →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2 — Acquisizione sensori -->
+          <div class="wizard-card wizard-step-content" id="wizard-content-2">
+            <h4>Acquisizione dati in corso…</h4>
+            <p class="desc">I sensori dermatologici stanno rilevando i parametri cutanei. Attendere il completamento di tutti i rilevamenti.</p>
+            <div class="sensor-acquisition" id="sensor-rows">
+              <div class="sensor-row" id="sensor-0">
+                <div class="sensor-icon">💧</div>
+                <div class="sensor-info"><div class="sensor-name">MoistureMeter EpiD — Idratazione cutanea</div><div class="sensor-desc">Misura il contenuto idrico dello strato corneo (% NMF)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-0"></div></div><div class="sensor-value" id="sval-0">—</div></div>
+                <div class="sensor-status" id="sstatus-0">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-1">
+                <div class="sensor-icon">🛢️</div>
+                <div class="sensor-info"><div class="sensor-name">SebumScale — Produzione sebacea</div><div class="sensor-desc">Quantifica il film lipidico superficiale (µg/cm²)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-1"></div></div><div class="sensor-value" id="sval-1">—</div></div>
+                <div class="sensor-status" id="sstatus-1">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-2">
+                <div class="sensor-icon">🔬</div>
+                <div class="sensor-info"><div class="sensor-name">LAQUA — pH superficiale cutaneo</div><div class="sensor-desc">Misura il pH dello strato idrolipidico (range 4–7)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-2"></div></div><div class="sensor-value" id="sval-2">—</div></div>
+                <div class="sensor-status" id="sstatus-2">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-3">
+                <div class="sensor-icon">📏</div>
+                <div class="sensor-info"><div class="sensor-name">ElastiMeter — Elasticità e firmezza</div><div class="sensor-desc">Rileva la capacità di recupero elastico della pelle (%)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-3"></div></div><div class="sensor-value" id="sval-3">—</div></div>
+                <div class="sensor-status" id="sstatus-3">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-4">
+                <div class="sensor-icon">🔴</div>
+                <div class="sensor-info"><div class="sensor-name">Mexameter MX-18 — Eritema / Rossore</div><div class="sensor-desc">Misura l'indice di eritema cutaneo (0.05–0.90)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-4"></div></div><div class="sensor-value" id="sval-4">—</div></div>
+                <div class="sensor-status" id="sstatus-4">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-5">
+                <div class="sensor-icon">🌑</div>
+                <div class="sensor-info"><div class="sensor-name">Mexameter MX-18 — Melanina / Pigmentazione</div><div class="sensor-desc">Misura l'indice di melanina superficiale (0.10–0.90)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-5"></div></div><div class="sensor-value" id="sval-5">—</div></div>
+                <div class="sensor-status" id="sstatus-5">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-6">
+                <div class="sensor-icon">〰️</div>
+                <div class="sensor-info"><div class="sensor-name">VisioFace Pro — Rugosità superficiale</div><div class="sensor-desc">Profilometria ottica 3D — indice rugosità Ra (0.05–0.90)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-6"></div></div><div class="sensor-value" id="sval-6">—</div></div>
+                <div class="sensor-status" id="sstatus-6">⏳</div>
+              </div>
+              <div class="sensor-row" id="sensor-7">
+                <div class="sensor-icon">🔵</div>
+                <div class="sensor-info"><div class="sensor-name">VisioFace Pro — Dilatazione pori</div><div class="sensor-desc">Analisi digitale della dimensione media dei pori (0.05–0.99)</div></div>
+                <div class="sensor-progress"><div class="sensor-bar-wrap"><div class="sensor-bar-fill" id="sbar-7"></div></div><div class="sensor-value" id="sval-7">—</div></div>
+                <div class="sensor-status" id="sstatus-7">⏳</div>
+              </div>
+            </div>
+            <div id="acquisition-complete" style="display:none;">
+              <div style="background:var(--green-pale);border:1.5px solid var(--green-glass);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--green-d);font-weight:500;margin-bottom:4px;">
+                ✅ Acquisizione completata — 8 sensori rilevati correttamente
+              </div>
+            </div>
+            <div class="wizard-actions" style="margin-top:20px;">
+              <button class="btn-secondary" onclick="wizardGoTo(1)">← Indietro</button>
+              <button class="btn-primary" id="btn-step2-next" style="width:auto;padding:10px 26px;opacity:.4;pointer-events:none;" onclick="wizardGoTo(3)">Analizza profilo →</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 — Profilo pelle generato -->
+          <div class="wizard-card wizard-step-content" id="wizard-content-3">
+            <h4>Profilo Pelle rilevato</h4>
+            <p class="desc">Dati acquisiti dai sensori e parametri clinici. Il profilo è stato anonimizzato automaticamente secondo le normative GDPR.</p>
+
+            <p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text-light);text-transform:uppercase;margin:0 0 8px;">Misurazioni strumentali</p>
+            <div class="profile-summary-grid">
+              <div class="profile-summary-card">
+                <div class="pscard-label">Tipo pelle</div>
+                <div class="pscard-value" id="ps-tipo" style="font-size:18px;">—</div>
+                <div class="pscard-sub" id="ps-tipo-sub">elaborazione…</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Idratazione</div>
+                <div class="pscard-value"><span id="ps-idrat">—</span><span class="dpc-unit">%</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill fill-blue" id="ps-idrat-bar" style="height:100%;border-radius:99px;width:0%"></div></div></div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Sebo (µg/cm²)</div>
+                <div class="pscard-value"><span id="ps-sebo">—</span></div>
+                <div class="pscard-sub" id="ps-sebo-sub">elaborazione…</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">pH cutaneo</div>
+                <div class="pscard-value"><span id="ps-ph">—</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill fill-gold" id="ps-ph-bar" style="height:100%;border-radius:99px;width:0%"></div></div></div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Elasticità</div>
+                <div class="pscard-value"><span id="ps-elast">—</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill fill-purple" id="ps-elast-bar" style="height:100%;border-radius:99px;width:0%"></div></div></div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Sensibilità</div>
+                <div class="pscard-value" id="ps-sens" style="font-size:18px;">—</div>
+                <div class="pscard-sub" id="ps-sens-sub">elaborazione…</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Rossore (eritema)</div>
+                <div class="pscard-value"><span id="ps-rossore">—</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill" id="ps-rossore-bar" style="height:100%;border-radius:99px;width:0%;background:var(--purple)"></div></div></div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Pigmentazione</div>
+                <div class="pscard-value"><span id="ps-pigmentazione">—</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill" id="ps-pigmentazione-bar" style="height:100%;border-radius:99px;width:0%;background:var(--gold)"></div></div></div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Rugosità</div>
+                <div class="pscard-value"><span id="ps-rugosita">—</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill" id="ps-rugosita-bar" style="height:100%;border-radius:99px;width:0%;background:var(--blue)"></div></div></div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Dilatazione pori</div>
+                <div class="pscard-value"><span id="ps-pori">—</span></div>
+                <div class="profile-bar-row"><div class="profile-bar-track" style="flex:1"><div class="fill" id="ps-pori-bar" style="height:100%;border-radius:99px;width:0%;background:var(--green)"></div></div></div>
+              </div>
+            </div>
+
+            <p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text-light);text-transform:uppercase;margin:16px 0 8px;">Grading clinico</p>
+            <div class="profile-summary-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+              <div class="profile-summary-card">
+                <div class="pscard-label">Età</div>
+                <div class="pscard-value" id="ps-eta" style="font-size:18px;">—</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Sesso</div>
+                <div class="pscard-value" id="ps-sesso" style="font-size:18px;">—</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Fototipo</div>
+                <div class="pscard-value" id="ps-fitzpatrick" style="font-size:18px;">—</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Acne (0–3)</div>
+                <div class="pscard-value" id="ps-acne" style="font-size:18px;">—</div>
+              </div>
+              <div class="profile-summary-card">
+                <div class="pscard-label">Fotoaging (0–3)</div>
+                <div class="pscard-value" id="ps-fotoaging" style="font-size:18px;">—</div>
+              </div>
+            </div>
+
+            <div class="disclaimer-banner" style="margin-bottom:0;"><span class="disc-icon">🔒</span><div>Il profilo è stato <strong>pseudonimizzato</strong>. Nessun dato personale è associato a questi valori.</div></div>
+            <div class="wizard-actions">
+              <button class="btn-secondary" onclick="wizardGoTo(2)">← Indietro</button>
+              <button class="btn-primary" style="width:auto;padding:10px 26px;" onclick="wizardGoTo(4)">Genera formulazione AI →</button>
+            </div>
+          </div>
+
+          <!-- STEP 4 — Formulazione AI -->
+          <div class="wizard-card wizard-step-content" id="wizard-content-4">
+            <h4>Motore AI — Generazione formulazione</h4>
+            <p class="desc">Il modello analizza il profilo cutaneo e seleziona gli ingredienti ottimali tra quelli disponibili nel catalogo.</p>
+            <div class="ai-processing" id="ai-processing-block">
+              <h5><span class="ai-spinner" id="ai-spinner"></span> Analisi in corso…</h5>
+              <div class="ai-stream" id="ai-stream-text"><span class="ai-stream-cursor"></span></div>
+            </div>
+            <div id="formulation-result-block" style="display:none;">
+              <div class="formulation-result">
+                <h5 id="form-result-title">—</h5>
+                <div class="form-meta" id="form-result-meta">—</div>
+                <table class="ingredients-table">
+                  <thead><tr><th>Ingrediente</th><th>Funzione</th><th>Concentrazione</th></tr></thead>
+                  <tbody id="form-ingredients-tbody"></tbody>
+                </table>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:14px;">
+                  <span style="font-size:13px;color:var(--text-mid);">Compatibilità chimica:</span>
+                  <span class="compat-pill high" id="form-compat-pill">—</span>
+                </div>
+              </div>
+              <div class="disclaimer-banner" style="margin-bottom:0;"><span class="disc-icon">⚠️</span><div>Formulazione a <strong>scopo didattico</strong>. Richiede validazione da parte di un cosmetologo qualificato.</div></div>
+            </div>
+            <div class="wizard-actions">
+              <button class="btn-secondary" onclick="wizardGoTo(3)">← Indietro</button>
+              <button class="btn-primary" id="btn-step4-next" style="width:auto;padding:10px 26px;opacity:.4;pointer-events:none;" onclick="wizardGoTo(5)">Vai alla revisione →</button>
+            </div>
+          </div>
+
+          <!-- STEP 5 — Revisione e salvataggio -->
+          <div class="wizard-card wizard-step-content" id="wizard-content-5">
+            <h4>Revisione finale</h4>
+            <p class="desc">Controlla il riepilogo prima di salvare il profilo e la formulazione nel sistema.</p>
+            <div class="review-section">
+              <h5>🧬 Profilo pelle</h5>
+              <div class="review-row"><span class="review-key">ID Profilo</span><span class="review-val" id="rev-id">—</span></div>
+              <div class="review-row"><span class="review-key">Tipo pelle</span><span class="review-val" id="rev-tipo">—</span></div>
+              <div class="review-row"><span class="review-key">Idratazione</span><span class="review-val" id="rev-idrat">—</span></div>
+              <div class="review-row"><span class="review-key">pH</span><span class="review-val" id="rev-ph">—</span></div>
+              <div class="review-row"><span class="review-key">Elasticità</span><span class="review-val" id="rev-elast">—</span></div>
+              <div class="review-row"><span class="review-key">Sensibilità</span><span class="review-val" id="rev-sens">—</span></div>
+              <div class="review-row"><span class="review-key">Dati clinici</span><span class="review-val" id="rev-clinical" style="color:var(--text-mid);font-size:12px;">—</span></div>
+            </div>
+            <div class="review-section">
+              <h5>🧪 Formulazione</h5>
+              <div class="review-row"><span class="review-key">Nome formulazione</span><span class="review-val" id="rev-form-name">—</span></div>
+              <div class="review-row"><span class="review-key">Compatibilità chimica</span><span class="review-val" id="rev-compat">—</span></div>
+              <div class="review-row"><span class="review-key">N° ingredienti</span><span class="review-val" id="rev-n-ing">—</span></div>
+              <div class="review-row"><span class="review-key">Contesto sessione</span><span class="review-val" id="rev-context">—</span></div>
+            </div>
+            <div class="export-actions">
+              <button class="btn-export btn-export-pdf" onclick="showToast('📄 PDF generato e pronto per il download!')">📄 Esporta PDF</button>
+              <button class="btn-export btn-export-csv" onclick="showToast('📊 Dati esportati in CSV!')">📊 Esporta CSV</button>
+              <button class="btn-primary" style="width:auto;padding:10px 22px;margin-left:auto;" onclick="saveAndFinish()">✅ Salva nel sistema →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ DETTAGLIO PROFILO ══ -->
+        <div id="page-profilo-dettaglio" class="page-section">
+          <div class="detail-back" onclick="showPage('profili',null)">← Torna ai Profili</div>
+          <div class="detail-hero">
+            <div class="detail-avatar">🧬</div>
+            <div class="detail-id-block">
+              <h2 id="det-id">PRF-0047</h2>
+              <p id="det-date">Acquisito il 26 maggio 2026 · Laboratorio didattico</p>
+              <div class="detail-badges">
+                <span class="detail-badge badge-green" id="det-tipo">Pelle Mista</span>
+                <span class="detail-badge badge-blue" id="det-sens-badge">Sensibilità Bassa</span>
+                <span class="detail-badge badge-gold" id="det-form-badge">2 formulazioni</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-params-grid">
+            <div class="detail-param-card">
+              <div class="dpc-label">Idratazione</div>
+              <div class="dpc-value"><span id="det-idrat">68</span><span class="dpc-unit">%</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-blue" id="det-idrat-bar" style="width:68%"></div></div>
+            </div>
+            <div class="detail-param-card">
+              <div class="dpc-label">pH cutaneo</div>
+              <div class="dpc-value"><span id="det-ph">5.4</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-gold" id="det-ph-bar" style="width:54%"></div></div>
+            </div>
+            <div class="detail-param-card">
+              <div class="dpc-label">Sebo (µg/cm²)</div>
+              <div class="dpc-value"><span id="det-sebo">145</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-purple" id="det-sebo-bar" style="width:48%"></div></div>
+            </div>
+            <div class="detail-param-card">
+              <div class="dpc-label">Elasticità</div>
+              <div class="dpc-value"><span id="det-elast">74</span><span class="dpc-unit">%</span></div>
+              <div class="dpc-bar"><div class="dpc-bar-fill fill-green" id="det-elast-bar" style="width:74%"></div></div>
+            </div>
+          </div>
+
+          <div class="detail-two-col">
+            <div class="detail-card">
+              <h4>👤 Dati anagrafici</h4>
+              <div class="detail-row"><span class="detail-row-label">Età</span><span class="detail-row-value" id="det-eta">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Sesso</span><span class="detail-row-value" id="det-sesso">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Fototipo Fitzpatrick</span><span class="detail-row-value" id="det-fitzpatrick">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Data acquisizione</span><span class="detail-row-value" id="det-date-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Tipo pelle</span><span class="detail-row-value" id="det-tipo-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Sensibilità</span><span class="detail-row-value" id="det-sens-ext">—</span></div>
+            </div>
+            <div class="detail-card">
+              <h4>📊 Misurazioni strumentali</h4>
+              <div class="detail-row"><span class="detail-row-label">Idratazione (MoistureMeter)</span><span class="detail-row-value" id="det-idrat-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">pH cutaneo (LAQUA)</span><span class="detail-row-value" id="det-ph-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Sebo (SebumScale)</span><span class="detail-row-value" id="det-sebo-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Elasticità (ElastiMeter)</span><span class="detail-row-value" id="det-elast-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Rossore / Eritema (Mexameter)</span><span class="detail-row-value" id="det-rossore-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Pigmentazione (Mexameter)</span><span class="detail-row-value" id="det-pigmentazione-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Rugosità (VisioFace Pro)</span><span class="detail-row-value" id="det-rugosita-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Pori (VisioFace Pro)</span><span class="detail-row-value" id="det-pori-ext">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Qualità acquisizione</span><span class="detail-row-value" style="color:var(--green-d)">✅ Ottima (97%)</span></div>
+            </div>
+          </div>
+          <div class="detail-two-col">
+            <div class="detail-card">
+              <h4>🩺 Grading clinico</h4>
+              <div class="detail-row"><span class="detail-row-label">Acne</span><span class="detail-row-value" id="det-acne">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Fotoaging</span><span class="detail-row-value" id="det-fotoaging">—</span></div>
+              <div class="detail-row"><span class="detail-row-label">Score sensibilità</span><span class="detail-row-value" id="det-sensibilita">—</span></div>
+            </div>
+            <div class="detail-card">
+              <h4>🧪 Formulazioni associate</h4>
+              <div id="det-formulations-list"></div>
+              <button class="btn-generate" onclick="startWizardFromProfile()">✨ Genera nuova formulazione</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ PROFILI ══ -->
+        <div id="page-profili" class="page-section">
+          <div class="page-intro"><h3 id="profili-title">Profili Pelle</h3><p id="profili-sub">Tutti i profili dermatologici acquisiti e anonimizzati.</p></div>
+          <div class="filter-bar">
+            <input class="search-input" type="text" placeholder="🔍  Cerca per ID o tipo pelle…" />
+            <div class="filter-chip active">Tutti</div><div class="filter-chip">Secca</div><div class="filter-chip">Grassa</div><div class="filter-chip">Mista</div><div class="filter-chip">Sensibile</div>
+          </div>
+          <div class="profiles-grid role-view role-admin role-docente" id="profiles-grid-main"></div>
+          <div class="profiles-grid role-view role-ricercatore" id="profiles-grid-ricercatore"></div>
+        </div>
+
+        <!-- ══ FORMULAZIONI ══ -->
+        <div id="page-formulazioni" class="page-section">
+          <div class="page-intro"><h3 id="form-title">Formulazioni</h3><p id="form-sub">Formulazioni cosmetiche generate dall'AI — da revisionare o esportare.</p></div>
+          <div class="disclaimer-banner"><span class="disc-icon">⚠️</span><div>Le formulazioni hanno <strong>valore didattico e indicativo</strong>. Non sostituiscono la validazione di un cosmetologo qualificato.</div></div>
+          <div class="filter-bar">
+            <input class="search-input" type="text" placeholder="🔍  Cerca formulazione…" />
+            <div class="filter-chip active">Tutte</div><div class="filter-chip">Completate</div><div class="filter-chip">Bozze</div>
+          </div>
+          <div class="formulations-list role-view role-admin role-docente">
+            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">28</div><div class="formulation-title"><h5>Siero idratante leggero — PRF-0047</h5><p>26/05/2026 · Pelle mista</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Acido ialuronico (2%)</span><span class="ingredient-chip highlight">Niacinamide (4%)</span><span class="ingredient-chip">Glicerina (5%)</span><span class="ingredient-chip">Estratto di aloe (3%)</span><span class="ingredient-chip">Acqua distillata q.b.</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:88%"></div></div><span class="compat-pct">88%</span></div></div></div>
+            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">27</div><div class="formulation-title"><h5>Crema seboregolatrice — PRF-0046</h5><p>25/05/2026 · Pelle grassa</p></div><span class="status-badge in-corso">In revisione</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Acido salicilico (1%)</span><span class="ingredient-chip highlight">Zinco PCA (1%)</span><span class="ingredient-chip">Estratto di tè verde (2%)</span><span class="ingredient-chip">Gel di aloe vera (8%)</span><span class="ingredient-chip">Niacinamide (5%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill mid" style="width:72%"></div></div><span class="compat-pct">72%</span></div></div></div>
+            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">26</div><div class="formulation-title"><h5>Balsamo nutriente ricco — PRF-0045</h5><p>25/05/2026 · Pelle secca</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Burro di karité (10%)</span><span class="ingredient-chip highlight">Olio di argan (5%)</span><span class="ingredient-chip">Ceramide NP (1%)</span><span class="ingredient-chip">Acido ialuronico (1%)</span><span class="ingredient-chip">Vitamina E (0.5%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:94%"></div></div><span class="compat-pct">94%</span></div></div></div>
+          </div>
+          <div class="formulations-list role-view role-ricercatore">
+            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">26</div><div class="formulation-title"><h5>Balsamo nutriente ricco — PRF-0045</h5><p>25/05/2026 · Pelle secca</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Burro di karité (10%)</span><span class="ingredient-chip highlight">Olio di argan (5%)</span><span class="ingredient-chip">Ceramide NP (1%)</span><span class="ingredient-chip">Acido ialuronico (1%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:94%"></div></div><span class="compat-pct">94%</span></div></div></div>
+            <div class="formulation-card"><div class="formulation-card-header"><div class="formulation-num">24</div><div class="formulation-title"><h5>Crema idratante quotidiana — PRF-0041</h5><p>20/05/2026 · Pelle mista</p></div><span class="status-badge completata">Completata</span></div><div class="formulation-card-body"><div class="ingredients-preview"><span class="ingredient-chip highlight">Acido ialuronico (1.5%)</span><span class="ingredient-chip highlight">Glicerina (8%)</span><span class="ingredient-chip">Estratto di aloe (4%)</span><span class="ingredient-chip">Niacinamide (3%)</span></div><div class="compat-bar-row"><span class="compat-label">Compatibilità chimica</span><div class="compat-bar"><div class="compat-fill high" style="width:91%"></div></div><span class="compat-pct">91%</span></div></div></div>
+          </div>
+        </div>
+
+        <!-- ══ CATALOGO INGREDIENTI ══ -->
+        <div id="page-ingredienti" class="page-section">
+          <div class="page-intro"><h3>Catalogo Ingredienti</h3><p>Principi attivi e ingredienti disponibili per la formulazione.</p></div>
+          <div class="filter-bar">
+            <input class="search-input" type="text" placeholder="🔍  Cerca ingrediente o principio attivo…" />
+            <div class="filter-chip active">Tutti</div><div class="filter-chip">Idratanti</div><div class="filter-chip">Seboregolatoli</div><div class="filter-chip">Botanici</div>
+          </div>
+          <div class="ingredients-grid">
+            <div class="ingredient-card"><div class="ing-emoji">💧</div><div class="ing-name">Acido Ialuronico</div><div class="ing-type">Principio attivo</div><div class="ing-tags"><span class="ing-tag">Idratante</span><span class="ing-tag">Tutti i tipi</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🟡</div><div class="ing-name">Niacinamide</div><div class="ing-type">Vitamina B3</div><div class="ing-tags"><span class="ing-tag">Anti-sebum</span><span class="ing-tag">Pori</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🌿</div><div class="ing-name">Estratto di Aloe</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Lenitivo</span><span class="ing-tag">Sensibile</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🫚</div><div class="ing-name">Olio di Argan</div><div class="ing-type">Olio vegetale</div><div class="ing-tags"><span class="ing-tag">Nutriente</span><span class="ing-tag">Secca</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🧈</div><div class="ing-name">Burro di Karité</div><div class="ing-type">Grasso vegetale</div><div class="ing-tags"><span class="ing-tag">Emolliente</span><span class="ing-tag">Secca</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🍵</div><div class="ing-name">Tè Verde</div><div class="ing-type">Estratto botanico</div><div class="ing-tags"><span class="ing-tag">Antiossidante</span><span class="ing-tag">Grassa</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🔬</div><div class="ing-name">Acido Salicilico</div><div class="ing-type">Beta-idrossiacido</div><div class="ing-tags"><span class="ing-tag">Esfoliante</span><span class="ing-tag">Grassa</span></div></div>
+            <div class="ingredient-card"><div class="ing-emoji">🛡️</div><div class="ing-name">Ceramide NP</div><div class="ing-type">Lipide strutturale</div><div class="ing-tags"><span class="ing-tag">Barriera</span><span class="ing-tag">Secca</span></div></div>
+          </div>
+        </div>
+
+        <!-- ══ GESTIONE UTENTI ══ -->
+        <div id="page-utenti" class="page-section">
+          <div class="page-intro"><h3>Gestione Utenti</h3><p>Accessi e ruoli della piattaforma.</p></div>
+          <div class="filter-bar">
+            <input class="search-input" type="text" placeholder="🔍  Cerca utente…" />
+            <button class="btn-new">+ Aggiungi utente</button>
+          </div>
+          <div class="users-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Ultimo accesso</th><th>Stato</th></tr></thead>
+              <tbody>
+                <tr><td><strong>M. Alberti</strong></td><td>m.alberti@stendhal.edu.it</td><td><span class="role-badge admin">Admin</span></td><td>Oggi, 09:00</td><td><span class="status-badge completata">Attivo</span></td></tr>
+                <tr><td><strong>G. Rossi</strong></td><td>g.rossi@stendhal.edu.it</td><td><span class="role-badge docente">Docente</span></td><td>Oggi, 10:45</td><td><span class="status-badge completata">Attivo</span></td></tr>
+                <tr><td><strong>L. Bianchi</strong></td><td>l.bianchi@stendhal.edu.it</td><td><span class="role-badge docente">Docente</span></td><td>Ieri, 14:30</td><td><span class="status-badge completata">Attivo</span></td></tr>
+                <tr><td><strong>A. Verdi</strong></td><td>a.verdi@stendhal.edu.it</td><td><span class="role-badge ricercatore">Ricercatore</span></td><td>Oggi, 09:50</td><td><span class="status-badge completata">Attivo</span></td></tr>
+                <tr><td><strong>F. Conti</strong></td><td>f.conti@stendhal.edu.it</td><td><span class="role-badge ricercatore">Ricercatore</span></td><td>22/05/2026</td><td><span class="status-badge bozza">Inattivo</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ══ CONFIGURAZIONE ══ -->
+        <div id="page-configurazione" class="page-section">
+          <div class="page-intro"><h3>Configurazione</h3><p>Impostazioni di sistema, connessioni API e compliance GDPR.</p></div>
+          <div class="config-grid">
+            <div class="config-section-card">
+              <div class="card-header"><h4>🔌 Connessioni API / Sorgenti dati</h4></div>
+              <div class="config-row"><div class="config-row-info"><h5>API Sensori Dermatologici</h5><p>Endpoint: api.sensori.stendhal.it</p></div><div class="api-status"><div class="api-dot ok"></div>Connessa</div></div>
+              <div class="config-row"><div class="config-row-info"><h5>Motore AI (Anthropic Claude)</h5><p>Chiamate questo mese: 847</p></div><div class="api-status"><div class="api-dot ok"></div>Attivo</div></div>
+              <div class="config-row"><div class="config-row-info"><h5>Database PostgreSQL</h5><p>Ultimo backup: oggi, 03:00</p></div><div class="api-status"><div class="api-dot warn"></div>Lento</div></div>
+            </div>
+            <div class="config-section-card">
+              <div class="card-header"><h4>🔒 Privacy & GDPR</h4></div>
+              <div class="config-row"><div class="config-row-info"><h5>Pseudonimizzazione automatica</h5><p>Applicata all'ingresso dei dati</p></div><div class="toggle on"></div></div>
+              <div class="config-row"><div class="config-row-info"><h5>Cifratura dati a riposo</h5><p>Database cifrato AES-256</p></div><div class="toggle on"></div></div>
+              <div class="config-row"><div class="config-row-info"><h5>Log accessi</h5><p>Registro completo per audit</p></div><div class="toggle on"></div></div>
+              <div class="config-row"><div class="config-row-info"><h5>HTTPS forzato</h5><p>Cifratura in transito</p></div><div class="toggle on"></div></div>
+            </div>
+            <div class="config-section-card">
+              <div class="card-header"><h4>🤖 Motore AI</h4></div>
+              <div class="config-row"><div class="config-row-info"><h5>Modalità raccomandazione</h5><p>Approccio corrente del motore</p></div><select style="font-size:12px;padding:5px 8px;border:1.5px solid rgba(0,0,0,0.09);border-radius:7px;background:rgba(255,255,255,0.65);"><option>Bilanciato</option><option>Prudente</option><option>Creativo</option></select></div>
+              <div class="config-row"><div class="config-row-info"><h5>Soglia compatibilità minima</h5><p>Formulazioni sotto soglia non mostrate</p></div><span style="font-size:13px;font-weight:700;color:var(--green-d);">65%</span></div>
+              <div class="config-row"><div class="config-row-info"><h5>Disclaimer formulazioni</h5><p>Avviso didattico sempre visibile</p></div><div class="toggle on"></div></div>
+            </div>
+            <div class="config-section-card">
+              <div class="card-header"><h4>🏫 Istituto</h4></div>
+              <div class="config-row"><div class="config-row-info"><h5>Nome istituto</h5><p>IIS Stendhal - Calamatta, Civitavecchia</p></div><span style="font-size:12px;color:var(--green);cursor:pointer;font-weight:500;">Modifica</span></div>
+              <div class="config-row"><div class="config-row-info"><h5>Lingua interfaccia</h5><p>Italiano</p></div><span style="font-size:12px;color:var(--green);cursor:pointer;font-weight:500;">Cambia</span></div>
+              <div class="config-row"><div class="config-row-info"><h5>Versione sistema</h5><p>AI Cosmeceutica v1.0 — Fase 1 MVP</p></div><span style="font-size:11px;color:var(--text-light);">Aggiornato</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-content -->
+    </main>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast-msg">✅ Operazione completata</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATI E COSTANTI
+// ══════════════════════════════════════════════
+let currentRole = 'admin';
+let currentWizardStep = 1;
+let wizardData = {};  // dati raccolti durante il wizard
+
+const userData = {
+  admin:       { name:'M. Alberti', label:'Amministratore', initials:'MA' },
+  docente:     { name:'G. Rossi',   label:'Docente',        initials:'GR' },
+  ricercatore: { name:'A. Verdi',   label:'Ricercatore',    initials:'AV' }
+};
+
+const pageTitles = {
+  'dashboard':          ['Dashboard',           'Panoramica laboratorio'],
+  'nuova-analisi':      ['Nuova Analisi',        'Wizard acquisizione dati'],
+  'profili':            ['Profili Pelle',        'Profili dermatologici anonimizzati'],
+  'profilo-dettaglio':  ['Dettaglio Profilo',    'Parametri estesi e formulazioni associate'],
+  'formulazioni':       ['Formulazioni',         'Elenco formulazioni generate'],
+  'ingredienti':        ['Catalogo Ingredienti', 'Principi attivi e ingredienti disponibili'],
+  'utenti':             ['Gestione Utenti',      'Accessi e ruoli piattaforma'],
+  'configurazione':     ['Configurazione',       'Impostazioni sistema e GDPR'],
+};
+
+// Dati statici profili (base)
+// Dati reali dal dataset_cosmeceutica_100_casi.xlsx
+const profilesData = {
+  'PRF-0001': { eta:58, sesso:'M', fitzpatrick:'I',   idrat:37, ph:5.0, sebo:99,  elast:0.78, rossore:0.10, pigmentazione:0.74, rugosita:0.55, pori:0.59, sensibilita:0.03, acne:0, fotoaging:1, date:'26 mag 2026', forms:['F001'] },
+  'PRF-0002': { eta:32, sesso:'M', fitzpatrick:'V',   idrat:73, ph:5.8, sebo:33,  elast:0.43, rossore:0.45, pigmentazione:0.28, rugosita:0.87, pori:0.76, sensibilita:0.16, acne:3, fotoaging:2, date:'25 mag 2026', forms:['F002'] },
+  'PRF-0003': { eta:35, sesso:'M', fitzpatrick:'II',  idrat:31, ph:5.2, sebo:53,  elast:0.92, rossore:0.10, pigmentazione:0.85, rugosita:0.60, pori:0.81, sensibilita:0.73, acne:0, fotoaging:3, date:'25 mag 2026', forms:['F003','F007'] },
+  'PRF-0004': { eta:23, sesso:'F', fitzpatrick:'VI',  idrat:44, ph:6.2, sebo:95,  elast:0.70, rossore:0.07, pigmentazione:0.66, rugosita:0.77, pori:0.99, sensibilita:0.86, acne:0, fotoaging:3, date:'24 mag 2026', forms:['F004'] },
+  'PRF-0005': { eta:35, sesso:'F', fitzpatrick:'VI',  idrat:65, ph:4.8, sebo:31,  elast:0.84, rossore:0.67, pigmentazione:0.70, rugosita:0.68, pori:0.07, sensibilita:0.63, acne:1, fotoaging:1, date:'24 mag 2026', forms:['F005','F016'] },
+  'PRF-0006': { eta:47, sesso:'F', fitzpatrick:'III', idrat:48, ph:5.8, sebo:92,  elast:0.94, rossore:0.32, pigmentazione:0.77, rugosita:0.06, pori:0.82, sensibilita:0.81, acne:3, fotoaging:2, date:'20 mag 2026', forms:['F006'] },
+};
+
+// 20 formulazioni reali dal dataset
+const formulationsData = {
+  'F001': { name:'Idratazione base',       compat:88 },
+  'F002': { name:'Acne lieve',             compat:82 },
+  'F003': { name:'Antiage',               compat:90 },
+  'F004': { name:'Pelle sensibile',        compat:91 },
+  'F005': { name:'Rosacea',               compat:85 },
+  'F006': { name:'Acne + disidratazione',  compat:79 },
+  'F007': { name:'Antiage avanzato',       compat:93 },
+  'F008': { name:'Macchie',               compat:87 },
+  'F009': { name:'Pelle grassa',           compat:84 },
+  'F010': { name:'Pelle secca',            compat:94 },
+  'F011': { name:'Pelle mista',            compat:88 },
+  'F012': { name:'Fotodanneggiamento',     compat:89 },
+  'F013': { name:'Seboregolazione',        compat:83 },
+  'F014': { name:'Ripristino barriera',    compat:92 },
+  'F015': { name:'Post-acne',              compat:80 },
+  'F016': { name:'Anti-rossore',           compat:86 },
+  'F017': { name:'Pelle atopica',          compat:90 },
+  'F018': { name:'Anti-pollution',         compat:85 },
+  'F019': { name:'Pelle menopausale',      compat:91 },
+  'F020': { name:'Rigenerante intensiva',  compat:88 },
+};
+
+// Funzioni derivate dai parametri
+function deriveType(p) {
+  if (p.acne >= 2 && p.sebo > 70)                      return 'Grassa';
+  if (p.sensibilita > 0.6 || p.rossore > 0.55)        return 'Sensibile';
+  if (p.idrat < 40)                                    return 'Secca';
+  if (p.sebo > 75 && p.idrat < 60)                    return 'Mista';
+  return 'Normale';
+}
+function deriveSens(p) {
+  if (p.sensibilita > 0.6 || p.rossore > 0.55) return 'Alta';
+  if (p.sensibilita > 0.3 || p.rossore > 0.30) return 'Media';
+  return 'Bassa';
+}
+// Scegli la formulazione più adatta dai parametri
+function pickFormulation(p) {
+  if (p.rossore > 0.55)                   return 'F016'; // Anti-rossore
+  if (p.acne >= 2 && p.idrat < 50)       return 'F006'; // Acne + disidratazione
+  if (p.acne >= 2)                        return 'F002'; // Acne lieve
+  if (p.acne >= 1)                        return 'F015'; // Post-acne
+  if (p.sensibilita > 0.7)               return 'F017'; // Pelle atopica
+  if (p.sensibilita > 0.5)               return 'F004'; // Pelle sensibile
+  if (p.fotoaging >= 3)                   return 'F007'; // Antiage avanzato
+  if (p.fotoaging >= 2)                   return 'F003'; // Antiage
+  if (p.fotoaging >= 1 && p.pigmentazione > 0.6) return 'F008'; // Macchie
+  if (p.fotoaging >= 1)                   return 'F012'; // Fotodanneggiamento
+  if (p.idrat < 35)                       return 'F010'; // Pelle secca
+  if (p.sebo > 90 && p.idrat < 55)       return 'F009'; // Pelle grassa
+  if (p.sebo > 70)                        return 'F013'; // Seboregolazione
+  if (p.pori > 0.75)                      return 'F014'; // Ripristino barriera
+  if (p.idrat < 50)                       return 'F001'; // Idratazione base
+  return 'F011';                                         // Pelle mista/normale
+}
+
+// ══════════════════════════════════════════════
+//  LOCALSTORAGE
+// ══════════════════════════════════════════════
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem('itaca_profiles');
+    if (saved) {
+      const extra = JSON.parse(saved);
+      Object.assign(profilesData, extra.profiles || {});
+      Object.assign(formulationsData, extra.formulations || {});
+    }
+  } catch(e) {}
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem('itaca_profiles', JSON.stringify({
+      profiles: profilesData,
+      formulations: formulationsData
+    }));
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGAZIONE
+// ══════════════════════════════════════════════
+function applyRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.role-switch-btn').forEach(b => b.classList.toggle('active', b.dataset.role === role));
+  const u = userData[role];
+  document.getElementById('user-name').textContent = u.name;
+  document.getElementById('user-role-label').textContent = u.label;
+  document.getElementById('user-initials').textContent = u.initials;
+  document.querySelectorAll('[data-roles]').forEach(el => {
+    el.style.display = el.dataset.roles.split(',').includes(role) ? '' : 'none';
+  });
+  document.querySelectorAll('.role-view').forEach(el => {
+    el.style.display = el.classList.contains('role-' + role) ? '' : 'none';
+  });
+  document.getElementById('nav-profili-label').textContent      = role === 'ricercatore' ? 'I Miei Profili'       : 'Profili Pelle';
+  document.getElementById('nav-formulazioni-label').textContent = role === 'ricercatore' ? 'Le Mie Formulazioni'  : 'Formulazioni';
+  document.getElementById('profili-title').textContent = role === 'ricercatore' ? 'I Miei Profili'      : 'Profili Pelle';
+  document.getElementById('profili-sub').textContent   = role === 'ricercatore' ? 'I tuoi profili personali.' : role === 'docente' ? 'Profili dei tuoi ricercatori e tuoi.' : 'Tutti i profili dermatologici acquisiti.';
+  document.getElementById('form-title').textContent    = role === 'ricercatore' ? 'Le Mie Formulazioni' : 'Formulazioni';
+  document.getElementById('form-sub').textContent      = role === 'ricercatore' ? 'Le tue formulazioni generate.' : role === 'docente' ? 'Formulazioni dei ricercatori e tue.' : 'Tutte le formulazioni generate dall\'AI.';
+  showPage('dashboard', document.querySelector('[data-page="dashboard"]'));
+}
+
+function showPage(name, navBtn) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  const t = document.getElementById('page-' + name);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  if (navBtn) navBtn.classList.add('active');
+  const titles = pageTitles[name] || [name, ''];
+  document.getElementById('page-title').textContent    = titles[0];
+  document.getElementById('page-subtitle').textContent = titles[1];
+  // scroll top
+  document.querySelector('.page-content').scrollTop = 0;
+}
+
+function goToApp(role) {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  applyRole(role || 'admin');
+}
+
+function goToLogin() {
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+}
+
+function toggleSource(el) {
+  document.querySelectorAll('.data-source-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ══════════════════════════════════════════════
+//  DETTAGLIO PROFILO
+// ══════════════════════════════════════════════
+function buildProfileCard(id, p) {
+  const nForms = (p.forms || []).length;
+  const formTag = nForms === 0 ? 'Bozza' : nForms + ' formulazion' + (nForms === 1 ? 'e' : 'i');
+  const fid = (p.forms || [])[0] || '';
+  const fname = fid ? ((formulationsData[fid] || {}).name || fid) : '';
+  return `<div class="profile-card">
+    <div class="profile-top">
+      <div class="profile-avatar">🧬</div>
+      <div>
+        <div class="profile-id">${id}</div>
+        <div class="profile-date">${p.date || '—'}</div>
+      </div>
+    </div>
+    <div class="profile-params">
+      <div class="param-item"><div class="param-label">Tipo pelle</div><div class="param-value">${p.tipo || '—'}</div></div>
+      <div class="param-item">
+        <div class="param-label">Idratazione</div>
+        <div class="param-value">${p.idrat}%</div>
+        <div class="param-bar"><div class="param-fill" style="width:${p.idrat}%"></div></div>
+      </div>
+      <div class="param-item">
+        <div class="param-label">pH</div>
+        <div class="param-value">${p.ph}</div>
+        <div class="param-bar"><div class="param-fill" style="width:${((p.ph-4)/3*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="param-item"><div class="param-label">Sensibilità</div><div class="param-value">${p.sens || '—'}</div></div>
+      ${fname ? `<div class="param-item"><div class="param-label">Formulazione</div><div class="param-value" style="font-size:11px;color:var(--text-mid)">${fid} · ${fname.substring(0,28)}${fname.length>28?'…':''}</div></div>` : ''}
+    </div>
+    <div class="profile-footer">
+      <span class="tag">${formTag}</span>
+      <span style="font-size:12px;color:var(--green);cursor:pointer;font-weight:600;" onclick="openProfile('${id}')">Apri →</span>
+    </div>
+  </div>`;
+}
+
+function renderProfileGrids() {
+  const ids = Object.keys(profilesData);
+  const mainEl = document.getElementById('profiles-grid-main');
+  const ricEl  = document.getElementById('profiles-grid-ricercatore');
+  if (mainEl) mainEl.innerHTML = ids.map(id => buildProfileCard(id, profilesData[id])).join('');
+  if (ricEl)  ricEl.innerHTML  = ids.filter(id => (profilesData[id].forms||[]).length > 0)
+                                    .map(id => buildProfileCard(id, profilesData[id])).join('');
+}
+
+function openProfile(id) {
+  const p = profilesData[id];
+  if (!p) return;
+
+  // helper: set text if element exists
+  const setText = (elId, val) => { const el = document.getElementById(elId); if (el) el.textContent = val; };
+  const setBar  = (elId, pct) => { const el = document.getElementById(elId); if (el) el.style.width = Math.min(Math.max(pct,0),100).toFixed(0) + '%'; };
+
+  // Header
+  setText('det-id',         id);
+  setText('det-date',       'Acquisito il ' + p.date + ' · Laboratorio didattico');
+  setText('det-tipo',       'Pelle ' + (p.tipo || '—'));
+  setText('det-sens-badge', 'Sensibilità ' + (p.sens || '—'));
+  setText('det-form-badge', p.forms.length + ' formulazion' + (p.forms.length === 1 ? 'e' : 'i'));
+
+  // Scheda rapida (4 barre)
+  setText('det-idrat', p.idrat);
+  setText('det-ph',    p.ph);
+  setText('det-sebo',  p.sebo);
+  setText('det-elast', p.elast);
+  setBar('det-idrat-bar', p.idrat);
+  setBar('det-ph-bar',    (p.ph / 7 * 100));
+  setBar('det-sebo-bar',  (p.sebo / 120 * 100));
+  setBar('det-elast-bar', (p.elast * 100));
+
+  // Sezione dati anagrafici
+  setText('det-eta',         (p.eta || '—') + ' anni');
+  setText('det-sesso',       p.sesso || '—');
+  setText('det-fitzpatrick', 'Fototipo ' + (p.fitzpatrick || '—'));
+
+  // Misurazioni strumentali (estese)
+  setText('det-idrat-ext', p.idrat + '%');
+  setText('det-ph-ext',    p.ph);
+  setText('det-sebo-ext',  p.sebo + ' µg/cm²');
+  setText('det-elast-ext', p.elast);
+  setText('det-rossore-ext',       (p.rossore      ?? '—'));
+  setText('det-pigmentazione-ext', (p.pigmentazione ?? '—'));
+  setText('det-rugosita-ext',      (p.rugosita      ?? '—'));
+  setText('det-pori-ext',          (p.pori          ?? '—'));
+
+  // Grading clinico
+  setText('det-acne',         'Grado ' + (p.acne      ?? '—') + '/3');
+  setText('det-fotoaging',    'Grado ' + (p.fotoaging ?? '—') + '/3');
+  setText('det-sensibilita',  (p.sensibilita ?? '—'));
+
+  // Estesi / compatibili con vecchio layout
+  setText('det-tipo-ext',  p.tipo || '—');
+  setText('det-sens-ext',  p.sens || '—');
+  setText('det-date-ext',  p.date);
+
+  // Formulazioni associate
+  const listEl = document.getElementById('det-formulations-list');
+  if (!listEl) { showPage('profilo-dettaglio', null); return; }
+  if (p.forms.length === 0) {
+    listEl.innerHTML = '<p style="font-size:13px;color:var(--text-light);padding:12px 0;">Nessuna formulazione generata per questo profilo.</p>';
+  } else {
+    listEl.innerHTML = p.forms.map(fid => {
+      const f = formulationsData[fid] || { name: fid, compat: 85 };
+      const compatClass = (f.compat >= 80) ? 'completata' : 'in-corso';
+      return `<div class="assoc-formulation">
+        <div class="assoc-form-num">${fid}</div>
+        <div class="assoc-form-info"><h6>${f.name}</h6><p>${fid} · Compatibilità ${f.compat}%</p></div>
+        <span class="status-badge ${compatClass}" style="font-size:10px;">${f.compat >= 80 ? 'Completata' : 'In revisione'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  showPage('profilo-dettaglio', null);
+}
+
+function startWizardFromProfile() {
+  showPage('nuova-analisi', document.querySelector('[data-page="nuova-analisi"]'));
+  wizardGoTo(1);
+}
+
+// ══════════════════════════════════════════════
+//  WIZARD
+// ══════════════════════════════════════════════
+function wizardGoTo(step) {
+  // aggiorna step bar
+  document.querySelectorAll('.wizard-step').forEach((el, i) => {
+    el.classList.toggle('active', i + 1 <= step);
+    el.classList.toggle('done',   i + 1 < step);
+  });
+  // mostra il contenuto corretto
+  document.querySelectorAll('.wizard-step-content').forEach(el => el.classList.remove('active'));
+  const content = document.getElementById('wizard-content-' + step);
+  if (content) content.classList.add('active');
+  currentWizardStep = step;
+
+  if (step === 2) startSensorAcquisition();
+  if (step === 3) populateProfileStep();
+  if (step === 4) startAIGeneration();
+  if (step === 5) populateReview();
+
+  document.querySelector('.page-content').scrollTop = 0;
+}
+
+// ── Step 2: animazione sensori (range calibrati su dataset reale) ──
+const sensorTargets = [
+  { key:'idrat',         unit:'%',   range:[20, 85],   decimals:0 },
+  { key:'sebo',          unit:'',    range:[5, 120],   decimals:0 },
+  { key:'ph',            unit:'',    range:[4.5, 6.5], decimals:1 },
+  { key:'elast',         unit:'',    range:[0.30,0.95],decimals:2 },
+  { key:'rossore',       unit:'',    range:[0.05,0.90],decimals:2 },
+  { key:'pigmentazione', unit:'',    range:[0.10,0.90],decimals:2 },
+  { key:'rugosita',      unit:'',    range:[0.05,0.90],decimals:2 },
+  { key:'pori',          unit:'',    range:[0.05,0.99],decimals:2 },
+];
+
+function startSensorAcquisition() {
+  // reset
+  document.getElementById('acquisition-complete').style.display = 'none';
+  const nextBtn = document.getElementById('btn-step2-next');
+  nextBtn.style.opacity = '.4';
+  nextBtn.style.pointerEvents = 'none';
+  wizardData.sensors = {};
+
+  sensorTargets.forEach((s, idx) => {
+    document.getElementById('sensor-' + idx).classList.remove('done');
+    document.getElementById('sstatus-' + idx).textContent = '⏳';
+    document.getElementById('sval-' + idx).textContent = '—';
+    document.getElementById('sbar-' + idx).style.width = '0%';
+  });
+
+  sensorTargets.forEach((s, idx) => {
+    const delay = idx * 1200;
+    setTimeout(() => animateSensor(s, idx), delay);
+  });
+}
+
+function animateSensor(s, idx) {
+  const target = s.range[0] + Math.random() * (s.range[1] - s.range[0]);
+  const finalVal = parseFloat(target.toFixed(s.decimals));
+  wizardData.sensors = wizardData.sensors || {};
+  wizardData.sensors[s.key] = finalVal;
+
+  const duration = 900;
+  const steps = 40;
+  let current = 0;
+  const interval = setInterval(() => {
+    current++;
+    const progress = current / steps;
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const displayVal = (s.range[0] + (finalVal - s.range[0]) * eased);
+    const barPct = ((displayVal - s.range[0]) / (s.range[1] - s.range[0]) * 100).toFixed(0);
+
+    document.getElementById('sbar-' + idx).style.width = barPct + '%';
+    document.getElementById('sval-' + idx).textContent = displayVal.toFixed(s.decimals) + s.unit;
+
+    if (current >= steps) {
+      clearInterval(interval);
+      document.getElementById('sval-' + idx).textContent = finalVal + s.unit;
+      document.getElementById('sensor-' + idx).classList.add('done');
+      document.getElementById('sstatus-' + idx).textContent = '✅';
+
+      if (idx === sensorTargets.length - 1) {
+        setTimeout(() => {
+          document.getElementById('acquisition-complete').style.display = 'block';
+          const btn = document.getElementById('btn-step2-next');
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        }, 300);
+      }
+    }
+  }, duration / steps);
+}
+
+// ── Step 3: popola profilo pelle ──
+function populateProfileStep() {
+  const s = wizardData.sensors || {};
+  const cl = wizardData.clinical || {};
+
+  const p = {
+    idrat:         s.idrat         ?? 55,
+    sebo:          s.sebo          ?? 60,
+    ph:            s.ph            ?? 5.5,
+    elast:         s.elast         ?? 0.70,
+    rossore:       s.rossore       ?? 0.20,
+    pigmentazione: s.pigmentazione ?? 0.30,
+    rugosita:      s.rugosita      ?? 0.30,
+    pori:          s.pori          ?? 0.40,
+    sensibilita:   parseFloat(cl.sensibilita ?? 0.20),
+    acne:          parseInt(cl.acne    ?? 0),
+    fotoaging:     parseInt(cl.fotoaging ?? 0),
+    eta:           parseInt(cl.eta      ?? 35),
+    sesso:         cl.sesso         ?? '—',
+    fitzpatrick:   cl.fitzpatrick   ?? '—',
+  };
+
+  const tipoMap = {
+    'Grassa':    'Eccesso di sebo, tendenza acneica',
+    'Sensibile': 'Reattività elevata, barriera fragile',
+    'Secca':     'Idratazione insufficiente',
+    'Mista':     'Zona T sebacea, guance normali',
+    'Normale':   'Parametri nei range ottimali',
+  };
+  const tipo = deriveType(p);
+  const sens = deriveSens(p);
+
+  wizardData.profile = { ...p, tipo, sens };
+
+  document.getElementById('ps-tipo').textContent      = tipo;
+  document.getElementById('ps-tipo-sub').textContent  = tipoMap[tipo];
+  document.getElementById('ps-idrat').textContent     = p.idrat.toFixed(0);
+  document.getElementById('ps-sebo').textContent      = p.sebo.toFixed(0);
+  document.getElementById('ps-sebo-sub').textContent  = p.sebo > 90 ? 'Elevato' : p.sebo > 60 ? 'Nella norma' : 'Basso';
+  document.getElementById('ps-ph').textContent        = p.ph.toFixed(1);
+  document.getElementById('ps-sens').textContent      = sens;
+  document.getElementById('ps-sens-sub').textContent  = sens === 'Alta' ? 'Richiede formule delicate' : sens === 'Media' ? 'Attenzione agli irritanti' : 'Buona tolleranza cutanea';
+  document.getElementById('ps-elast').textContent     = p.elast.toFixed(2);
+
+  // nuovi parametri
+  const el = id => document.getElementById(id);
+  if (el('ps-rossore'))       { el('ps-rossore').textContent       = p.rossore.toFixed(2); }
+  if (el('ps-pigmentazione')) { el('ps-pigmentazione').textContent = p.pigmentazione.toFixed(2); }
+  if (el('ps-rugosita'))      { el('ps-rugosita').textContent      = p.rugosita.toFixed(2); }
+  if (el('ps-pori'))          { el('ps-pori').textContent          = p.pori.toFixed(2); }
+  if (el('ps-acne'))          { el('ps-acne').textContent          = p.acne + '/3'; }
+  if (el('ps-fotoaging'))     { el('ps-fotoaging').textContent     = p.fotoaging + '/3'; }
+  if (el('ps-eta'))           { el('ps-eta').textContent           = p.eta + ' anni'; }
+  if (el('ps-sesso'))         { el('ps-sesso').textContent         = p.sesso; }
+  if (el('ps-fitzpatrick'))   { el('ps-fitzpatrick').textContent   = 'Tipo ' + p.fitzpatrick; }
+
+  setTimeout(() => {
+    const setBar = (id, pct) => { const b = document.getElementById(id); if (b) b.style.width = Math.min(Math.max(pct,0),100).toFixed(0) + '%'; };
+    setBar('ps-idrat-bar',         p.idrat);
+    setBar('ps-ph-bar',            ((p.ph - 4.5) / 2 * 100));
+    setBar('ps-elast-bar',         (p.elast * 100));
+    setBar('ps-rossore-bar',       (p.rossore * 100));
+    setBar('ps-pigmentazione-bar', (p.pigmentazione * 100));
+    setBar('ps-rugosita-bar',      (p.rugosita * 100));
+    setBar('ps-pori-bar',          (p.pori * 100));
+  }, 100);
+}
+
+// Ingredienti per formulazione (campione rappresentativo per il mockup)
+const formulaIngredients = {
+  'F001': [['Acido ialuronico','Idratazione profonda','1.5%',true],['Glicerina','Umettante','8.0%',true],['Estratto aloe','Lenitivo','4.0%',false],['Pantenolo','Riparatore','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F002': [['Acido salicilico','Esfoliante BHA','1.0%',true],['Niacinamide','Anti-sebo & pori','5.0%',true],['Zinco PCA','Seboregolatore','1.0%',false],['Estratto tè verde','Antiossidante','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F003': [['Retinolo','Antiage cell. turnover','0.3%',true],['Vitamina C','Antiossidante','10.0%',true],['Acido ialuronico','Idratazione','1.0%',false],['Peptidi tripli','Ristrutturante','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F004': [['Bisabololo','Lenitivo','0.5%',true],['Pantenolo','Barriera','3.0%',true],['Ceramide NP','Lipide strutturale','1.0%',false],['Estratto calendula','Calmante','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F005': [['Azelaico acido','Anti-rossore & acne','10.0%',true],['Niacinamide','Vasocostrittore blando','4.0%',true],['Estratto liquirizia','Lenitivo','2.0%',false],['Allantoina','Calmante','0.5%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F006': [['Acido salicilico','BHA esfoliante','1.5%',true],['Acido ialuronico','Reidratazione','1.0%',true],['Niacinamide','Multi-funzione','5.0%',false],['Glicerina','Umettante','5.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F007': [['Retinolo','Antiage avanzato','0.5%',true],['Vitamina C','Antiossidante potenziato','15.0%',true],['Peptidi EGF','Fattore crescita','3.0%',false],['CoQ10','Antiossidante mitocondriale','0.5%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F008': [['Acido kojico','Schiarente','1.0%',true],['Vitamina C','Antiossidante','10.0%',true],['Estratto liquirizia','Depigmentante','2.0%',false],['Niacinamide','Uniformante tono','4.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F009': [['Acido salicilico','Esfoliante','1.0%',true],['Zinco PCA','Seboregolatore','1.5%',true],['Estratto tè verde','Antiossidante','3.0%',false],['Gel aloe','Lenitivo','8.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F010': [['Burro di karité','Emolliente ricco','10.0%',true],['Ceramide NP','Barriera lipidica','1.0%',true],['Olio argan','Nutriente','5.0%',false],['Acido ialuronico','Idratazione','1.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F011': [['Niacinamide','Equilibrante','4.0%',true],['Acido ialuronico','Idratazione','1.0%',true],['Zinco PCA','Zona T','0.5%',false],['Glicerina','Umettante','5.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F012': [['Vitamina C','Antiossidante + fotoprotettivo','12.0%',true],['Resveratrolo','Antiage foto','0.5%',true],['Niacinamide','Uniformante','5.0%',false],['Vitamina E','Antiossidante liposolubile','1.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F013': [['Zinco PCA','Seboregolatore primario','2.0%',true],['Acido salicilico','BHA','0.5%',true],['Niacinamide','Riduzione pori','4.0%',false],['Estratto bardana','Purificante','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F014': [['Ceramide AP','Ripristino barriera','1.5%',true],['Ceramide NP','Lipide 1','0.5%',true],['Pantenolo','Riparatore','3.0%',false],['Colesterolo','Lipide 2','0.5%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F015': [['Acido azelaico','Post-acne & cicatrici','10.0%',true],['Niacinamide','Uniformante','5.0%',true],['Vitamina C','Antiossidante','8.0%',false],['Estratto cipolla','Anti-cicatrice','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F016': [['Azelaico acido','Anti-rossore','5.0%',true],['Estratto liquirizia','Vasoprotettore','2.0%',true],['Allantoina','Calmante','0.5%',false],['Pantenolo','Lenitivo','2.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F017': [['Ceramide NP','Barriera atopica','2.0%',true],['Estratto avena','Lenitivo intensivo','3.0%',true],['Pantenolo','Riparatore','3.0%',false],['Colloidal oatmeal','Barriera protettiva','1.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F018': [['Vitamina C','Anti-pollution','10.0%',true],['Vitamina E','Antiossidante','1.0%',true],['Estratto tè verde','Chelante metalli','3.0%',false],['Resveratrolo','Scavenger ROS','0.5%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F019': [['Estrogeni fitoesterici','Bilanciamento ormonale','2.0%',true],['Retinolo','Antiage','0.3%',true],['Ceramide NP','Barriera','1.0%',false],['Acido ialuronico HMW','Idratazione','1.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+  'F020': [['Fattori EGF','Rigenerazione cellulare','4.0%',true],['Peptidi tripli','Ristrutturante','3.0%',true],['Ceramide AP','Barriera','1.0%',false],['Vitamina C','Antiossidante','10.0%',false],['Acqua distillata','Solvente','q.b.',false]],
+};
+
+function startAIGeneration() {
+  document.getElementById('formulation-result-block').style.display = 'none';
+  document.getElementById('ai-processing-block').style.display = 'block';
+  document.getElementById('ai-spinner').style.display = 'inline-block';
+  const nextBtn = document.getElementById('btn-step4-next');
+  nextBtn.style.opacity = '.4';
+  nextBtn.style.pointerEvents = 'none';
+
+  const p    = wizardData.profile || {};
+  const tipo = p.tipo || 'Normale';
+  const fid  = pickFormulation(p);
+  wizardData.selectedFid = fid;
+
+  const extraLines = [
+    'Analisi ' + Object.keys(wizardData.sensors||{}).length + ' parametri sensoristici…',
+    'Tipo pelle: ' + tipo + ' · Sensibilità: ' + (p.sens||'—'),
+    'Fotoaging: ' + (p.fotoaging||0) + '/3 · Acne: ' + (p.acne||0) + '/3',
+    'Consultazione database 20 formulazioni certificate…',
+    'Formulazione selezionata: ' + fid + ' — ' + (formulationsData[fid]||{}).name,
+    'Verifica compatibilità chimica ingredienti…',
+    'Calcolo concentrazioni ottimali…',
+    '✅ Formulazione generata con successo.',
+  ];
+
+  const streamEl = document.getElementById('ai-stream-text');
+  streamEl.innerHTML = '<span class="ai-stream-cursor"></span>';
+
+  let lineIdx = 0;
+  function nextLine() {
+    if (lineIdx >= extraLines.length) { setTimeout(() => showFormulationResult(fid), 400); return; }
+    typeText(streamEl, extraLines[lineIdx], () => { lineIdx++; setTimeout(nextLine, 300); });
+  }
+  setTimeout(nextLine, 400);
+}
+
+function typeText(el, text, cb) {
+  const cursor = el.querySelector('.ai-stream-cursor') || document.createElement('span');
+  cursor.className = 'ai-stream-cursor';
+  const span = document.createElement('div');
+  let i = 0;
+  el.insertBefore(span, cursor);
+  const iv = setInterval(() => {
+    span.textContent += text[i++];
+    if (i >= text.length) { clearInterval(iv); cb && cb(); }
+  }, 16);
+}
+
+function showFormulationResult(fid) {
+  const fd   = formulationsData[fid] || { name:'Formulazione personalizzata', compat:85 };
+  const ings = formulaIngredients[fid] || formulaIngredients['F001'];
+  const p    = wizardData.profile || {};
+
+  wizardData.formula = { id: fid, name: fd.name, compat: fd.compat, ings, tipo: p.tipo };
+
+  document.getElementById('ai-spinner').style.display = 'none';
+  document.getElementById('ai-processing-block').querySelector('h5').innerHTML = '✅ Analisi completata';
+
+  const tbody = document.getElementById('form-ingredients-tbody');
+  tbody.innerHTML = ings.map(([name, fn, conc, hi]) =>
+    `<tr class="${hi ? 'ing-highlight' : ''}"><td>${name}</td><td style="color:var(--text-mid)">${fn}</td><td style="font-weight:600">${conc}</td></tr>`
+  ).join('');
+
+  const newPrfNum = String(Object.keys(profilesData).length + 1).padStart(4,'0');
+  document.getElementById('form-result-title').textContent = fd.name + ' (PRF-' + newPrfNum + ')';
+  document.getElementById('form-result-meta').textContent  = fid + ' · Pelle ' + p.tipo + ' · ' + ings.length + ' ingredienti · Generato oggi';
+  const pill = document.getElementById('form-compat-pill');
+  pill.textContent = fd.compat + '% compatibilità';
+  pill.className = 'compat-pill ' + (fd.compat >= 80 ? 'high' : 'mid');
+
+  document.getElementById('formulation-result-block').style.display = 'block';
+  const btn = document.getElementById('btn-step4-next');
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
+}
+
+// ── Step 5: revisione ──
+function saveClinical() {
+  wizardData.clinical = {
+    eta:          (document.getElementById('clin-eta')         || {}).value || '',
+    sesso:        (document.getElementById('clin-sesso')       || {}).value || '',
+    fitzpatrick:  (document.getElementById('clin-fitzpatrick') || {}).value || '',
+    acne:         (document.getElementById('clin-acne')        || {}).value || '0',
+    fotoaging:    (document.getElementById('clin-fotoaging')   || {}).value || '0',
+    sensibilita:  (document.getElementById('clin-sensibilita') || {}).value || '',
+  };
+}
+
+function populateReview() {
+  const p   = wizardData.profile  || {};
+  const f   = wizardData.formula  || {};
+  const cl  = wizardData.clinical || {};
+  const ctx = (document.getElementById('session-context') || {}).value || 'Laboratorio didattico';
+  const newId = 'PRF-' + String(Object.keys(profilesData).length + 1 + 48).padStart(4,'0');
+  wizardData.newId = newId;
+
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setText('rev-id',        newId);
+  setText('rev-tipo',      p.tipo || '—');
+  setText('rev-idrat',     (p.idrat || '—') + '%');
+  setText('rev-ph',        p.ph || '—');
+  setText('rev-elast',     p.elast || '—');
+  setText('rev-sens',      p.sens || '—');
+  setText('rev-form-name', (wizardData.selectedFid || '—') + ' — ' + (f.name || '—'));
+  setText('rev-compat',    (f.compat || '—') + '%');
+  setText('rev-n-ing',     (f.ings || []).length);
+  setText('rev-context',   ctx);
+
+  // campi clinici facoltativi nel riepilogo
+  const clinSummary = [
+    cl.eta         ? 'Età: ' + cl.eta                         : null,
+    cl.sesso       ? 'Sesso: ' + cl.sesso                     : null,
+    cl.fitzpatrick ? 'Fitzpatrick: ' + cl.fitzpatrick          : null,
+    cl.acne        ? 'Acne: grado ' + cl.acne                  : null,
+    cl.fotoaging   ? 'Fotoaging: grado ' + cl.fotoaging        : null,
+  ].filter(Boolean).join(' · ');
+
+  const clinEl = document.getElementById('rev-clinical');
+  if (clinEl) clinEl.textContent = clinSummary || '(non inseriti)';
+}
+
+// ── Salva e chiudi ──
+function saveAndFinish() {
+  const p  = wizardData.profile  || {};
+  const f  = wizardData.formula  || {};
+  const cl = wizardData.clinical || {};
+  const s  = wizardData.sensors  || {};
+  const id = wizardData.newId || 'PRF-NEW';
+  const fid = wizardData.selectedFid || f.id || 'F001';
+
+  profilesData[id] = {
+    tipo:          p.tipo,
+    sens:          p.sens,
+    idrat:         Math.round(p.idrat ?? s.idrat ?? 55),
+    ph:            parseFloat((p.ph ?? s.ph ?? 5.5).toFixed(1)),
+    sebo:          Math.round(p.sebo ?? s.sebo ?? 60),
+    elast:         parseFloat((p.elast ?? s.elast ?? 0.70).toFixed(2)),
+    rossore:       parseFloat((p.rossore ?? s.rossore ?? 0.20).toFixed(2)),
+    pigmentazione: parseFloat((p.pigmentazione ?? s.pigmentazione ?? 0.30).toFixed(2)),
+    rugosita:      parseFloat((p.rugosita ?? s.rugosita ?? 0.30).toFixed(2)),
+    pori:          parseFloat((p.pori ?? s.pori ?? 0.40).toFixed(2)),
+    sensibilita:   parseFloat((p.sensibilita ?? cl.sensibilita ?? 0.20).toFixed(2)),
+    acne:          parseInt(p.acne ?? cl.acne ?? 0),
+    fotoaging:     parseInt(p.fotoaging ?? cl.fotoaging ?? 0),
+    eta:           parseInt(p.eta ?? cl.eta ?? 35),
+    sesso:         p.sesso ?? cl.sesso ?? '—',
+    fitzpatrick:   p.fitzpatrick ?? cl.fitzpatrick ?? '—',
+    date:          new Date().toLocaleDateString('it-IT', {day:'numeric', month:'short', year:'numeric'}),
+    forms:         [fid],
+  };
+
+  saveToStorage();
+  renderProfileGrids();
+  showToast('✅ Profilo ' + id + ' salvato · Formulazione ' + fid + ' associata');
+  setTimeout(() => showPage('profili', document.querySelector('[data-page="profili"]')), 1200);
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast-msg');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromStorage();
+  document.querySelectorAll('.role-view').forEach(el => el.style.display = 'none');
+  renderProfileGrids();
+
+  // wizard: reset al primo step quando si va su "nuova analisi"
+  document.querySelectorAll('[data-page="nuova-analisi"]').forEach(btn => {
+    btn.addEventListener('click', () => wizardGoTo(1));
+  });
+});
+</script>
+</body>
+</html>
